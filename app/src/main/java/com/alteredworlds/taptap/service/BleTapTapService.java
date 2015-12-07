@@ -102,7 +102,7 @@ public class BleTapTapService extends Service {
         if (null != mBtAdapter) {
             mBleScanner = mBtAdapter.getBluetoothLeScanner();
             if (null == mBleScanner) {
-
+                Log.w(LOG_TAG, "Failed to getBluetoothLeScanner");
             } else {
                 ScanSettings scanSettings = new ScanSettings.Builder()
                         .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
