@@ -3,9 +3,11 @@ package com.alteredworlds.taptap;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.alteredworlds.taptap.service.BleTapTapService;
+import com.alteredworlds.taptap.service.TapGattAttributes;
 
 public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback {
@@ -33,6 +37,25 @@ public class MainActivity extends AppCompatActivity implements
 
     private BleTapTapService mService;
 
+    private FloatingActionButton mFab;
+    private final BroadcastReceiver mServiceResultReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if (TapGattAttributes.ACTION_GATT_DISCONNECTED.equals(action)) {
+            } else if (TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED
+                    .equals(action)) {
+                //getGattService(mBluetoothLeService.getSupportedGattService());
+            } else if (TapGattAttributes.ACTION_DATA_AVAILABLE.equals(action)) {
+                //displayData(intent.getByteArrayExtra(TapGattAttributes.EXTRA_DATA));
+            } else if (TapGattAttributes.ACTION_BLE_SCAN_START.equals(action)) {
+                showScanningStatus(true);
+            } else if (TapGattAttributes.ACTION_BLE_SCAN_STOP.equals(action)) {
+                showScanningStatus(false);
+            }
+        }
+    };
     /**
      * Defines callbacks for service binding, passed to bindService()
      */
@@ -51,6 +74,25 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
+    private static IntentFilter makeServiceStatusFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+
+        intentFilter.addAction(TapGattAttributes.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(TapGattAttributes.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(TapGattAttributes.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(TapGattAttributes.ACTION_BLE_SCAN_START);
+        intentFilter.addAction(TapGattAttributes.ACTION_BLE_SCAN_STOP);
+
+        return intentFilter;
+    }
+
+    private void showScanningStatus(boolean scanning) {
+        if (null != mFab) {
+            mFab.setImageResource(scanning ? R.drawable.ic_clear_white_24dp : R.drawable.ic_speaker_phone_white_24dp);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,8 +100,8 @@ public class MainActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 toggleScanDevices();
@@ -68,8 +110,17 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mServiceResultReceiver,
+                makeServiceStatusFilter());
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mServiceResultReceiver);
         if (null != mService) {
             mService.stopScanDevices();
         }
@@ -187,8 +238,6 @@ public class MainActivity extends AppCompatActivity implements
                 startScanningAfterVerifyingPermission(true);
             } else {
                 mService.stopScanDevices();
-                // dump set of unique devices found during this scan to log
-                mService.listDevices();
             }
         }
     }
