@@ -35,6 +35,11 @@
                 <action android:name="com.alteredworlds.taptap.service.BleTapTapService" />
             </intent-filter>
         </service>
+
+        <provider
+            android:name="com.alteredworlds.taptap.data.TapTapContentProvider"
+            android:authorities="com.alteredworlds.taptap.data"
+            android:exported="false" />
     </application>
 
 </manifest>
