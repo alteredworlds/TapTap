@@ -23,8 +23,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.alteredworlds.taptap.data.TapTapDataContract;
+import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
+
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -49,7 +52,8 @@ public class BleTapTapService extends Service {
     private BluetoothLeScanner mBleScanner;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
-    private HashMap<String, BluetoothDevice> mDevices = new HashMap<>();
+    private HashSet<String> mKnownDevices = new HashSet<>();
+
     private int mConnectionState = STATE_DISCONNECTED;
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -109,6 +113,7 @@ public class BleTapTapService extends Service {
             }
         }
     };
+
     private ScanCallback mLeScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
@@ -118,13 +123,7 @@ public class BleTapTapService extends Service {
                 if (null == device) {
                     Log.e(LOG_TAG, "Scan result supplied null device...?");
                 } else {
-                    String key = device.getAddress();
-                    if (addDevice(key, device)) {
-                        // NOTIFY that we have found a new device
-                        Log.d(LOG_TAG, "Found Device " + key + " " + (TextUtils.isEmpty(device.getName()) ? "" : device.getName()));
-                    } else {
-                        //Log.d(LOG_TAG, "Device " + key + " already scanned");
-                    }
+                    addDevice(device);
                 }
             }
         }
@@ -167,19 +166,27 @@ public class BleTapTapService extends Service {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private boolean addDevice(String key, BluetoothDevice device) {
+    private boolean addDevice(BluetoothDevice device) {
         boolean retVal = false;
-        if ((null != device) && isValidKey(key) && !mDevices.containsKey(key)) {
-            mDevices.put(key, device);
-            retVal = true;
+        if (null != device) {
+            String key = device.getAddress();
+            if (!TextUtils.isEmpty(key) && !mKnownDevices.contains(key)) {
+                // add to our KnownDevices (fast lookup) set
+                mKnownDevices.add(key);
+
+                // now add to our data store
+                getContentResolver().insert(
+                        TapTapDataContract.DeviceEntry.CONTENT_URI,
+                        BluetoothDeviceConverter.getContentValues(device));
+
+                retVal = true;
+
+                Log.d(LOG_TAG, "Found Device " + key + " " + (TextUtils.isEmpty(device.getName()) ? "" : device.getName()));
+            }
         }
         return retVal;
     }
 
-    // we may end up insisting key looks like a valid MAC
-    private boolean isValidKey(String key) {
-        return !TextUtils.isEmpty(key);
-    }
 
     @Nullable
     @Override
@@ -210,7 +217,14 @@ public class BleTapTapService extends Service {
         }
     }
 
+    public void clearAllDevices() {
+        getContentResolver().delete(TapTapDataContract.DeviceEntry.CONTENT_URI, null, null);
+        mKnownDevices.clear();
+    }
+
     public void startScanDevices() {
+        // clear all recorded devices & start afresh...
+        clearAllDevices();
         synchronized (mLock) {
             if (null != mBtAdapter) {
                 mBleScanner = mBtAdapter.getBluetoothLeScanner();
@@ -262,17 +276,6 @@ public class BleTapTapService extends Service {
 
     public boolean isScanning() {
         return null != mBleScanner;
-    }
-
-    public void listDevices() {
-        for (BluetoothDevice device : mDevices.values()) {
-            StringBuilder sb = new StringBuilder(100);
-            sb.append("Device address: ");
-            sb.append(device.getAddress());
-            sb.append("  name: ");
-            sb.append(device.getName());
-            Log.i(LOG_TAG, sb.toString());
-        }
     }
 
     public boolean bleIsEnabled() {

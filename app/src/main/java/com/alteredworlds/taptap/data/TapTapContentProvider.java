@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.alteredworlds.taptap.data.TapTapDataContract.DeviceEntry;
 
@@ -106,10 +107,12 @@ public class TapTapContentProvider extends ContentProvider {
         switch (match) {
             case DEVICE: {
                 long _id = db.insert(DeviceEntry.TABLE_NAME, null, values);
-                if (_id >= 0)
+                if (_id >= 0) {
                     retVal = DeviceEntry.buildUri(_id);
-                else
+                    Log.d(LOG_TAG, "Inserted new device");
+                } else {
                     throw new SQLException("Failed to insert row into " + DeviceEntry.TABLE_NAME);
+                }
             }
             break;
 
