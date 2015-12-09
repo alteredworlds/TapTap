@@ -46,7 +46,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             Log.d(LOG_TAG, action);
             if (TapGattAttributes.ACTION_GATT_DISCONNECTED.equals(action)) {
             } else if (TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                if (null == mService.getSupportedGattService()) {
+                if ((null == mService) || (null == mService.getSupportedGattService())) {
                     mStatusTextView.setText("");
                 } else {
                     mStatusTextView.setText("THIS IS OURS, BABY!");
@@ -56,6 +56,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             }
         }
     };
+
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className,
@@ -185,7 +186,9 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             mNameTextView.setText(name);
 
             // try connecting to the device
-            mService.connect(mDeviceAddress);
+            if (null != mService) {
+                mService.connect(mDeviceAddress);
+            }
         }
     }
 }
