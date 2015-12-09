@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -349,6 +350,14 @@ public class BleTapTapService extends Service {
         mBluetoothDeviceAddress = null;
         mBluetoothGatt.close();
         mBluetoothGatt = null;
+    }
+
+    public BluetoothGattService getSupportedGattService() {
+        BluetoothGattService retVal = null;
+        if (null != mBluetoothGatt) {
+            retVal = mBluetoothGatt.getService(TapGattAttributes.RX_SERVICE_UUID);
+        }
+        return retVal;
     }
 
     // static class with weak reference used to prevent memory leak

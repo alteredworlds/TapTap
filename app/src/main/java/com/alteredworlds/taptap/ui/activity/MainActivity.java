@@ -44,14 +44,7 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-
-            if (TapGattAttributes.ACTION_GATT_DISCONNECTED.equals(action)) {
-            } else if (TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED
-                    .equals(action)) {
-                //getGattService(mBluetoothLeService.getSupportedGattService());
-            } else if (TapGattAttributes.ACTION_DATA_AVAILABLE.equals(action)) {
-                //displayData(intent.getByteArrayExtra(TapGattAttributes.EXTRA_DATA));
-            } else if (TapGattAttributes.ACTION_BLE_SCAN_START.equals(action)) {
+            if (TapGattAttributes.ACTION_BLE_SCAN_START.equals(action)) {
                 showScanningStatus(true);
             } else if (TapGattAttributes.ACTION_BLE_SCAN_STOP.equals(action)) {
                 showScanningStatus(false);
@@ -79,10 +72,6 @@ public class MainActivity extends AppCompatActivity implements
     private static IntentFilter makeServiceStatusFilter() {
         final IntentFilter intentFilter = new IntentFilter();
 
-        intentFilter.addAction(TapGattAttributes.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(TapGattAttributes.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(TapGattAttributes.ACTION_DATA_AVAILABLE);
         intentFilter.addAction(TapGattAttributes.ACTION_BLE_SCAN_START);
         intentFilter.addAction(TapGattAttributes.ACTION_BLE_SCAN_STOP);
 
