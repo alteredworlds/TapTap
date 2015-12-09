@@ -25,7 +25,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.alteredworlds.taptap.R;
-import com.alteredworlds.taptap.data.TapTapDataContract;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
 
@@ -118,9 +117,6 @@ public class MainActivity extends AppCompatActivity implements
                 toggleScanDevices();
             }
         });
-
-        // we should clear devices cache on startup
-        clearAllDevices();
     }
 
     @Override
@@ -255,9 +251,5 @@ public class MainActivity extends AppCompatActivity implements
                 mService.stopScanDevices();
             }
         }
-    }
-
-    public void clearAllDevices() {
-        getContentResolver().delete(TapTapDataContract.DeviceEntry.CONTENT_URI, null, null);
     }
 }
