@@ -1,4 +1,4 @@
-package com.alteredworlds.taptap.activity;
+package com.alteredworlds.taptap.ui.activity;
 
 import android.Manifest;
 import android.app.Activity;

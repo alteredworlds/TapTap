@@ -1,4 +1,4 @@
-package com.alteredworlds.taptap.adapter;
+package com.alteredworlds.taptap.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;

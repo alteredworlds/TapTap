@@ -1,4 +1,4 @@
-package com.alteredworlds.taptap.fragment;
+package com.alteredworlds.taptap.ui.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

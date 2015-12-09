@@ -1,4 +1,4 @@
-package com.alteredworlds.taptap.fragment;
+package com.alteredworlds.taptap.ui.fragment;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -15,10 +15,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.alteredworlds.taptap.R;
-import com.alteredworlds.taptap.activity.DeviceDetailActivity;
-import com.alteredworlds.taptap.adapter.DeviceListAdapter;
 import com.alteredworlds.taptap.data.TapTapDataContract.DeviceEntry;
 import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
+import com.alteredworlds.taptap.ui.activity.DeviceDetailActivity;
+import com.alteredworlds.taptap.ui.adapter.DeviceListAdapter;
 import com.alteredworlds.taptap.util.CoreUtils;
 
 /**
