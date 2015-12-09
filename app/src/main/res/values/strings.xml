@@ -2,4 +2,5 @@
     <string name="app_name">TapTap</string>
     <string name="action_settings">Settings</string>
     <string name="empty_list_text">No taps detected - have you tried scanning?</string>
+    <string name="title_activity_device_detail">Device Information</string>
 </resources>

@@ -1,6 +1,8 @@
-package com.alteredworlds.taptap;
+package com.alteredworlds.taptap.fragment;
 
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -9,15 +11,20 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.alteredworlds.taptap.R;
+import com.alteredworlds.taptap.activity.DeviceDetailActivity;
 import com.alteredworlds.taptap.adapter.DeviceListAdapter;
 import com.alteredworlds.taptap.data.TapTapDataContract.DeviceEntry;
+import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
+import com.alteredworlds.taptap.util.CoreUtils;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment implements
+public class MainFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int DEVICES_LOADER_ID = 1;
@@ -25,13 +32,13 @@ public class MainActivityFragment extends Fragment implements
     private View mProgressBar;
     private View mListContainer;
 
-    public MainActivityFragment() {
+    public MainFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.main_fragment, container, false);
 
         ListView listView = (ListView) view.findViewById(R.id.listView);
         mAdapter = new DeviceListAdapter(getContext(), null, 0);
@@ -39,6 +46,20 @@ public class MainActivityFragment extends Fragment implements
 
         View emptyView = view.findViewById(R.id.emptyTextView);
         listView.setEmptyView(emptyView);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor cursor = CoreUtils.safeCast(
+                        parent.getItemAtPosition(position),
+                        Cursor.class);
+                Uri uri = BluetoothDeviceConverter.getUri(cursor);
+                //
+                // OK, we have Uri for this device in ContentProvider
+                Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
+                intent.putExtra(DeviceDetailActivity.EXTRA_DEVICE_URI, uri);
+                startActivity(intent);
+            }
+        });
 
         mProgressBar = view.findViewById(R.id.progressBar);
         mListContainer = view.findViewById(R.id.listContainer);
@@ -50,12 +71,6 @@ public class MainActivityFragment extends Fragment implements
     public void onResume() {
         super.onResume();
         getActivity().getSupportLoaderManager().initLoader(DEVICES_LOADER_ID, null, this);
-    }
-
-    @Override
-    public void onPause() {
-        //getActivity().getSupportLoaderManager().destroyLoader(DEVICES_LOADER_ID);
-        super.onPause();
     }
 
     @Override

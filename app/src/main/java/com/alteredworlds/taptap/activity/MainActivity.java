@@ -1,4 +1,4 @@
-package com.alteredworlds.taptap;
+package com.alteredworlds.taptap.activity;
 
 import android.Manifest;
 import android.app.Activity;
@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.alteredworlds.taptap.R;
 import com.alteredworlds.taptap.data.TapTapDataContract;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
@@ -95,9 +96,9 @@ public class MainActivity extends AppCompatActivity implements
                     R.drawable.ic_clear_white_24dp : R.drawable.ic_speaker_phone_white_24dp);
         }
         // showing progress instead of list while scan active prevents live update of list!
-//        MainActivityFragment frag = CoreUtils.safeCast(
+//        MainFragment frag = CoreUtils.safeCast(
 //                getSupportFragmentManager().findFragmentById(R.id.fragment),
-//                MainActivityFragment.class);
+//                MainFragment.class);
 //        if (null != frag) {
 //            frag.showScanningStatus(scanning);
 //        }
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -136,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mServiceResultReceiver);
         if (null != mService) {
             mService.stopScanDevices();
+            showScanningStatus(false);
         }
     }
 
@@ -155,14 +157,6 @@ public class MainActivity extends AppCompatActivity implements
             unbindService(mConnection);
             mService = null;
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        // remove all stored Device records
-        clearAllDevices();
-
-        super.onDestroy();
     }
 
     @Override

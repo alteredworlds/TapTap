@@ -3,6 +3,7 @@ package com.alteredworlds.taptap.data.converter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import com.alteredworlds.taptap.data.TapTapDataContract.DeviceEntry;
@@ -20,6 +21,17 @@ public class BluetoothDeviceConverter {
             String name = device.getName();
             if (!TextUtils.isEmpty(name)) {
                 retVal.put(DeviceEntry.COLUMN_NAME, name);
+            }
+        }
+        return retVal;
+    }
+
+    public static Uri getUri(Cursor cursor) {
+        Uri retVal = null;
+        if (null != cursor) {
+            int idx = cursor.getColumnIndex(DeviceEntry._ID);
+            if (-1 != idx) {
+                retVal = DeviceEntry.buildUri(cursor.getLong(idx));
             }
         }
         return retVal;
