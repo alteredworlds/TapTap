@@ -41,7 +41,7 @@ public class BleTapTapService extends Service {
     private static final int STATE_CONNECTED = 2;
 
     private static final int SCAN_STOP_MSG_ID = 12345;
-    private static final int SCAN_TIMEOUT_MS = 3500;
+    private static final int SCAN_TIMEOUT_MS = 2000;
 
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();

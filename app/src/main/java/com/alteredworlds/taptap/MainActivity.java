@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.alteredworlds.taptap.data.TapTapDataContract;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
 
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements
     private BleTapTapService mService;
 
     private FloatingActionButton mFab;
+
     private final BroadcastReceiver mServiceResultReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -89,8 +91,16 @@ public class MainActivity extends AppCompatActivity implements
 
     private void showScanningStatus(boolean scanning) {
         if (null != mFab) {
-            mFab.setImageResource(scanning ? R.drawable.ic_clear_white_24dp : R.drawable.ic_speaker_phone_white_24dp);
+            mFab.setImageResource(scanning ?
+                    R.drawable.ic_clear_white_24dp : R.drawable.ic_speaker_phone_white_24dp);
         }
+        // showing progress instead of list while scan active prevents live update of list!
+//        MainActivityFragment frag = CoreUtils.safeCast(
+//                getSupportFragmentManager().findFragmentById(R.id.fragment),
+//                MainActivityFragment.class);
+//        if (null != frag) {
+//            frag.showScanningStatus(scanning);
+//        }
     }
 
     @Override
@@ -107,6 +117,9 @@ public class MainActivity extends AppCompatActivity implements
                 toggleScanDevices();
             }
         });
+
+        // we should clear devices cache on startup
+        clearAllDevices();
     }
 
     @Override
@@ -142,6 +155,14 @@ public class MainActivity extends AppCompatActivity implements
             unbindService(mConnection);
             mService = null;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        // remove all stored Device records
+        clearAllDevices();
+
+        super.onDestroy();
     }
 
     @Override
@@ -240,5 +261,9 @@ public class MainActivity extends AppCompatActivity implements
                 mService.stopScanDevices();
             }
         }
+    }
+
+    public void clearAllDevices() {
+        getContentResolver().delete(TapTapDataContract.DeviceEntry.CONTENT_URI, null, null);
     }
 }
