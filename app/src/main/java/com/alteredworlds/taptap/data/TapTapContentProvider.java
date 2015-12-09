@@ -17,6 +17,8 @@ import com.alteredworlds.taptap.data.TapTapDataContract.DeviceEntry;
 /**
  * Created by twcgilbert on 09/12/2015.
  */
+@SuppressWarnings("ConstantConditions")
+// gets rid of getContext().getContentResolver() null warning
 public class TapTapContentProvider extends ContentProvider {
     private static final String LOG_TAG = TapTapContentProvider.class.getSimpleName();
 
