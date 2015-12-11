@@ -81,23 +81,6 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             }
         }
     };
-
-    private boolean getGattService(BluetoothGattService gattService) {
-        boolean retVal = false;
-        if (null != gattService) {
-            retVal = true;
-            BluetoothGattCharacteristic characteristic = gattService
-                    .getCharacteristic(BleTapTapService.TX_CHAR_UUID);
-            mCharacteristics.put(characteristic.getUuid(), characteristic);
-
-            BluetoothGattCharacteristic characteristicRx = gattService
-                    .getCharacteristic(BleTapTapService.RX_CHAR_UUID);
-            mService.setCharacteristicNotification(characteristicRx, true);
-            mService.readCharacteristic(characteristicRx);
-        }
-        return retVal;
-    }
-
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className,
@@ -114,6 +97,17 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         }
     };
 
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+
+        intentFilter.addAction(TapGattAttributes.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(TapGattAttributes.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(TapGattAttributes.ACTION_DATA_AVAILABLE);
+
+        return intentFilter;
+    }
+
     private boolean getGattService(BluetoothGattService gattService) {
         boolean retVal = false;
         if (null != gattService) {
@@ -128,17 +122,6 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             mService.readCharacteristic(characteristicRx);
         }
         return retVal;
-    }
-
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-
-        intentFilter.addAction(TapGattAttributes.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(TapGattAttributes.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(TapGattAttributes.ACTION_DATA_AVAILABLE);
-
-        return intentFilter;
     }
 
     @Override
