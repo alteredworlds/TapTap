@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:padding="20dp" />
+        android:padding="10dp" />
 
     <TextView
         android:id="@+id/nameTextView"
@@ -23,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:padding="20dp" />
+        android:padding="10dp" />
 
     <TextView
         android:id="@+id/statusTextView"
@@ -31,7 +31,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:padding="20dp" />
+        android:padding="10dp" />
 
     <LinearLayout
         android:id="@+id/controlsLayout"

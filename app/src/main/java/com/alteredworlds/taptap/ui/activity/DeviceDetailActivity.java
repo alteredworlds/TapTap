@@ -1,5 +1,6 @@
 package com.alteredworlds.taptap.ui.activity;
 
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -26,7 +27,10 @@ import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class DeviceDetailActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
@@ -39,6 +43,9 @@ public class DeviceDetailActivity extends AppCompatActivity implements
     private TextView mNameTextView;
     private TextView mStatusTextView;
     private View mControlsLayout;
+
+    // wrong scope, surely? Shouldn't these belong to the service?
+    private Map<UUID, BluetoothGattCharacteristic> mCharacteristics = new HashMap<>();
 
 
     // move away from bound service ASAP
@@ -63,8 +70,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                             sb.append("\n");
                         }
                     }
-                    if (null != mService.getSupportedGattService()) {
-                        sb.append("THIS IS OURS, BABY!");
+                    if (getGattService(mService.getSupportedGattService())) {
                         controlsVisible = true;
                     }
                 }
@@ -75,6 +81,22 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             }
         }
     };
+
+    private boolean getGattService(BluetoothGattService gattService) {
+        boolean retVal = false;
+        if (null != gattService) {
+            retVal = true;
+            BluetoothGattCharacteristic characteristic = gattService
+                    .getCharacteristic(BleTapTapService.TX_CHAR_UUID);
+            mCharacteristics.put(characteristic.getUuid(), characteristic);
+
+            BluetoothGattCharacteristic characteristicRx = gattService
+                    .getCharacteristic(BleTapTapService.RX_CHAR_UUID);
+            mService.setCharacteristicNotification(characteristicRx, true);
+            mService.readCharacteristic(characteristicRx);
+        }
+        return retVal;
+    }
 
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -91,6 +113,22 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             mService = null;
         }
     };
+
+    private boolean getGattService(BluetoothGattService gattService) {
+        boolean retVal = false;
+        if (null != gattService) {
+            retVal = true;
+            BluetoothGattCharacteristic characteristic = gattService
+                    .getCharacteristic(BleTapTapService.TX_CHAR_UUID);
+            mCharacteristics.put(characteristic.getUuid(), characteristic);
+
+            BluetoothGattCharacteristic characteristicRx = gattService
+                    .getCharacteristic(BleTapTapService.RX_CHAR_UUID);
+            mService.setCharacteristicNotification(characteristicRx, true);
+            mService.readCharacteristic(characteristicRx);
+        }
+        return retVal;
+    }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();

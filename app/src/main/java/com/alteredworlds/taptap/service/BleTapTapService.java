@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
@@ -32,13 +33,16 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by twcgilbert on 05/12/2015.
  */
 public class BleTapTapService extends Service {
+    public final static UUID TX_CHAR_UUID = UUID.fromString("713d0003-503e-4c75-ba94-3148f18d941e");
+    public final static UUID RX_CHAR_UUID = UUID.fromString("713d0002-503e-4c75-ba94-3148f18d941e");
+    public final static UUID RX_SERVICE_UUID = UUID.fromString("713d0000-503e-4c75-ba94-3148f18d941e");
     private static final String LOG_TAG = BleTapTapService.class.getSimpleName();
-
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
@@ -51,7 +55,7 @@ public class BleTapTapService extends Service {
     private final Object mLock = new Object();
     // local handler
     private Handler mHandler;
-    private BluetoothAdapter mBtAdapter;
+    private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mBleScanner;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
@@ -162,7 +166,7 @@ public class BleTapTapService extends Service {
         // This is special handling for the Heart Rate Measurement profile.  Data parsing is
         // carried out as per profile specifications:
         // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
-        if (TapGattAttributes.TX_CHAR_UUID.equals(characteristic.getUuid())) {
+        if (TX_CHAR_UUID.equals(characteristic.getUuid())) {
             // Log.d(TAG, String.format("Received TX: %d",characteristic.getValue() ));
             intent.putExtra(TapGattAttributes.EXTRA_DATA, characteristic.getValue());
         }
@@ -213,9 +217,9 @@ public class BleTapTapService extends Service {
         mHandler = new BleTapServiceHandler(this);
 
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBtAdapter = bluetoothManager.getAdapter();
+        mBluetoothAdapter = bluetoothManager.getAdapter();
 
-        if (null == mBtAdapter) {
+        if (null == mBluetoothAdapter) {
             Log.w(LOG_TAG, "Bluetooth Adapter cannot be found!");
         }
     }
@@ -229,8 +233,8 @@ public class BleTapTapService extends Service {
         // clear all recorded devices & start afresh...
         clearAllDevices();
         synchronized (mLock) {
-            if (null != mBtAdapter) {
-                mBleScanner = mBtAdapter.getBluetoothLeScanner();
+            if (null != mBluetoothAdapter) {
+                mBleScanner = mBluetoothAdapter.getBluetoothLeScanner();
                 if (null == mBleScanner) {
                     Log.w(LOG_TAG, "Failed to getBluetoothLeScanner");
                 } else {
@@ -274,7 +278,7 @@ public class BleTapTapService extends Service {
     }
 
     public boolean bleIsEnabled() {
-        return (null != mBtAdapter) && mBtAdapter.isEnabled();
+        return (null != mBluetoothAdapter) && mBluetoothAdapter.isEnabled();
     }
 
     /**
@@ -287,7 +291,7 @@ public class BleTapTapService extends Service {
      * callback.
      */
     public boolean connect(final String address) {
-        if ((null == mBtAdapter) || (null == address)) {
+        if ((null == mBluetoothAdapter) || (null == address)) {
             Log.w(LOG_TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;
         }
@@ -304,7 +308,7 @@ public class BleTapTapService extends Service {
             }
         }
 
-        final BluetoothDevice device = mBtAdapter.getRemoteDevice(address);
+        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (null == device) {
             Log.w(LOG_TAG, "Device not found.  Unable to connect.");
             return false;
@@ -325,7 +329,7 @@ public class BleTapTapService extends Service {
      * callback.
      */
     public void disconnect() {
-        if ((null == mBtAdapter) || (null == mBluetoothGatt)) {
+        if ((null == mBluetoothAdapter) || (null == mBluetoothGatt)) {
             Log.w(LOG_TAG, "BluetoothAdapter not initialized");
         } else {
             mBluetoothGatt.disconnect();
@@ -349,7 +353,7 @@ public class BleTapTapService extends Service {
     public BluetoothGattService getSupportedGattService() {
         BluetoothGattService retVal = null;
         if (null != mBluetoothGatt) {
-            retVal = mBluetoothGatt.getService(TapGattAttributes.RX_SERVICE_UUID);
+            retVal = mBluetoothGatt.getService(RX_SERVICE_UUID);
         }
         return retVal;
     }
@@ -361,6 +365,50 @@ public class BleTapTapService extends Service {
         }
         return retVal;
     }
+
+    /**
+     * Enables or disables notification on a give characteristic.
+     *
+     * @param characteristic Characteristic to act on.
+     * @param enabled        If true, enable notification. False otherwise.
+     */
+    public void setCharacteristicNotification(
+            BluetoothGattCharacteristic characteristic, boolean enabled) {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(LOG_TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+
+        if (RX_CHAR_UUID.equals(characteristic.getUuid())) {
+            BluetoothGattDescriptor descriptor =
+                    characteristic.getDescriptor(TapGattAttributes.CLIENT_CHARACTERISTIC_CONFIG);
+            if (null != descriptor) {
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                mBluetoothGatt.writeDescriptor(descriptor);
+            }
+        }
+    }
+
+    /**
+     * Request a read on a given {@code BluetoothGattCharacteristic}. The read
+     * result is reported asynchronously through the
+     * {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
+     * callback.
+     *
+     * @param characteristic The characteristic to read from.
+     */
+    public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(LOG_TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+
+        mBluetoothGatt.readCharacteristic(characteristic);
+    }
+
+
+    // ADDED FOR TESTING - this is *surely* not the right way to do this stuff
 
     // static class with weak reference used to prevent memory leak
     static class BleTapServiceHandler extends Handler {

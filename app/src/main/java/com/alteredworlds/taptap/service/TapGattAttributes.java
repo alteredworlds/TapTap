@@ -16,8 +16,6 @@ public class TapGattAttributes {
     public final static String ACTION_DATA_AVAILABLE = "awUART.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA = "awUART.EXTRA_DATA";
     public final static String DEVICE_DOES_NOT_SUPPORT_UART = "awUART.DEVICE_DOES_NOT_SUPPORT_UART";
-    public final static UUID TX_CHAR_UUID = UUID.fromString("713d0003-503e-4c75-ba94-3148f18d941e");
-    public final static UUID RX_CHAR_UUID = UUID.fromString("713d0002-503e-4c75-ba94-3148f18d941e");
-    public final static UUID RX_SERVICE_UUID = UUID.fromString("713d0000-503e-4c75-ba94-3148f18d941e");
-    public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
+
+    public final static UUID CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 }
