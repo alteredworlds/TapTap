@@ -369,8 +369,10 @@ public class BleTapTapService extends Service {
     /**
      * Enables or disables notification on a give characteristic.
      *
-     * @param characteristic Characteristic to act on.
-     * @param enabled        If true, enable notification. False otherwise.
+     * @param characteristic
+     *            Characteristic to act on.
+     * @param enabled
+     *            If true, enable notification. False otherwise.
      */
     public void setCharacteristicNotification(
             BluetoothGattCharacteristic characteristic, boolean enabled) {
@@ -396,7 +398,8 @@ public class BleTapTapService extends Service {
      * {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
      * callback.
      *
-     * @param characteristic The characteristic to read from.
+     * @param characteristic
+     *            The characteristic to read from.
      */
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
