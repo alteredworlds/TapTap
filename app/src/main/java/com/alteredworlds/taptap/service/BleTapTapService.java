@@ -366,6 +366,10 @@ public class BleTapTapService extends Service {
         return retVal;
     }
 
+    public void sendCommand(char[] data) {
+        //writeValue(data);
+    }
+
     /**
      * Enables or disables notification on a give characteristic.
      *
@@ -408,6 +412,16 @@ public class BleTapTapService extends Service {
         }
 
         mBluetoothGatt.readCharacteristic(characteristic);
+    }
+
+    public boolean writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+        boolean retVal = (null != mBluetoothAdapter) &&
+                (null != mBluetoothGatt) &&
+                mBluetoothGatt.writeCharacteristic(characteristic);
+        if (!retVal) {
+            Log.w(LOG_TAG, "BluetoothAdapter not initialized");
+        }
+        return retVal;
     }
 
 

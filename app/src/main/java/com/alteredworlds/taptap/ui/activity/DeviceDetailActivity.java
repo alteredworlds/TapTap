@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.alteredworlds.taptap.R;
@@ -140,6 +141,27 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         mNameTextView = (TextView) findViewById(R.id.nameTextView);
         mStatusTextView = (TextView) findViewById(R.id.statusTextView);
         mControlsLayout = findViewById(R.id.controlsLayout);
+
+        Button button = (Button) findViewById(R.id.startLogging);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(LOG_TAG, "onClick: Start Logging");
+                char buf[] = {'O'};
+                sendCommand(buf);
+            }
+        });
+
+        button = (Button) findViewById(R.id.stopLogging);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(LOG_TAG, "onClick: Stop Logging");
+                char buf[] = {'C'};
+                sendCommand(buf);
+            }
+        });
+
     }
 
     @Override
@@ -228,6 +250,20 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             // try connecting to the device
             if (null != mService) {
                 mService.connect(deviceAddress);
+            }
+        }
+    }
+
+    protected void sendCommand(char[] data) {
+        if (null != mService) {
+            BluetoothGattCharacteristic txCharc = mCharacteristics.get(BleTapTapService.TX_CHAR_UUID);
+            if (null != txCharc) {
+                String value = new String(data);
+                if (txCharc.setValue(value)) {
+                    mService.writeCharacteristic(txCharc);
+                } else {
+                    Log.e(LOG_TAG, "Error: setValue!");
+                }
             }
         }
     }
