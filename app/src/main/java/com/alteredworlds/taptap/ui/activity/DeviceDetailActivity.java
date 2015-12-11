@@ -18,6 +18,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.alteredworlds.taptap.R;
@@ -34,10 +35,10 @@ public class DeviceDetailActivity extends AppCompatActivity implements
     private static final int DEVICE_INFO_LOADER_ID = 2;
 
     private Uri mDeviceUri;
-    private String mDeviceAddress;
     private TextView mAddressTextView;
     private TextView mNameTextView;
     private TextView mStatusTextView;
+    private View mControlsLayout;
 
 
     // move away from bound service ASAP
@@ -49,6 +50,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             Log.d(LOG_TAG, action);
             if (TapGattAttributes.ACTION_GATT_DISCONNECTED.equals(action)) {
             } else if (TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                boolean controlsVisible = false;
                 StringBuilder sb = new StringBuilder();
                 if (null == mService) {
                     sb.append("Disconnected");
@@ -63,9 +65,11 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                     }
                     if (null != mService.getSupportedGattService()) {
                         sb.append("THIS IS OURS, BABY!");
+                        controlsVisible = true;
                     }
                 }
                 mStatusTextView.setText(sb.toString());
+                mControlsLayout.setVisibility(controlsVisible ? View.VISIBLE : View.GONE);
             } else if (TapGattAttributes.ACTION_DATA_AVAILABLE.equals(action)) {
                 //displayData(intent.getByteArrayExtra(RBLService.EXTRA_DATA));
             }
@@ -114,6 +118,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         mAddressTextView = (TextView) findViewById(R.id.addressTextView);
         mNameTextView = (TextView) findViewById(R.id.nameTextView);
         mStatusTextView = (TextView) findViewById(R.id.statusTextView);
+        mControlsLayout = findViewById(R.id.controlsLayout);
     }
 
     @Override
@@ -193,15 +198,15 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         if ((null != data) && data.moveToFirst()) {
             BluetoothDeviceConverter.ColumnIndices columnIndices = new BluetoothDeviceConverter.ColumnIndices(data);
             // required field
-            mDeviceAddress = data.getString(columnIndices.colADDRESS);
-            mAddressTextView.setText(mDeviceAddress);
+            String deviceAddress = data.getString(columnIndices.colADDRESS);
+            mAddressTextView.setText(deviceAddress);
             // optional
             String name = data.isNull(columnIndices.colNAME) ? "" : data.getString(columnIndices.colNAME);
             mNameTextView.setText(name);
 
             // try connecting to the device
             if (null != mService) {
-                mService.connect(mDeviceAddress);
+                mService.connect(deviceAddress);
             }
         }
     }

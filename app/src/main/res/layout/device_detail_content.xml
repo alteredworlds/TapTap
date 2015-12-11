@@ -11,20 +11,53 @@
 
     <TextView
         android:id="@+id/addressTextView"
+        style="@android:style/TextAppearance.Material.Subhead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:padding="20dp" />
 
     <TextView
         android:id="@+id/nameTextView"
+        style="@android:style/TextAppearance.Material.Subhead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:padding="20dp" />
 
     <TextView
         android:id="@+id/statusTextView"
+        style="@android:style/TextAppearance.Material.Subhead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:padding="20dp" />
+
+    <LinearLayout
+        android:id="@+id/controlsLayout"
+        style="?@android:attr/buttonBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/startLogging"
+            style="?@android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Logging">
+
+        </Button>
+
+        <Button
+            android:id="@+id/stopLogging"
+            style="?@android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stop Logging"></Button>
+
+    </LinearLayout>
 
 </LinearLayout>
