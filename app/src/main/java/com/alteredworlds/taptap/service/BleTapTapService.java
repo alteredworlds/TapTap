@@ -11,6 +11,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
@@ -28,6 +29,7 @@ import com.alteredworlds.taptap.data.TapTapDataContract;
 import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -235,21 +237,13 @@ public class BleTapTapService extends Service {
                     ScanSettings scanSettings = new ScanSettings.Builder()
                             .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
                             .build();
-//                List<ScanFilter> filters = new ArrayList<>();
-//                ScanFilter scanFilter;
-//                scanFilter = new ScanFilter.Builder()
-//                        .setServiceUuid(new ParcelUuid(TapGattAttributes.RX_SERVICE_UUID))
-//                        .build();
-//                filters.add(scanFilter);
-//                scanFilter = new ScanFilter.Builder()
-//                        .setServiceUuid(new ParcelUuid(TapGattAttributes.TX_CHAR_UUID))
-//                        .build();
-//                filters.add(scanFilter);
-//                scanFilter = new ScanFilter.Builder()
-//                        .setServiceUuid(new ParcelUuid(TapGattAttributes.RX_CHAR_UUID))
-//                        .build();
-//                filters.add(scanFilter);
-                    mBleScanner.startScan(null, scanSettings, mLeScanCallback);
+                    List<ScanFilter> filters = new ArrayList<>(1);
+//                    ScanFilter scanFilter = new ScanFilter.Builder()
+//                            .setServiceUuid(new ParcelUuid(TapGattAttributes.RX_SERVICE_UUID))
+//                            .build();
+//                    filters.add(scanFilter);
+
+                    mBleScanner.startScan(filters, scanSettings, mLeScanCallback);
 
                     // notify we have started scanning
                     broadcastUpdate(TapGattAttributes.ACTION_BLE_SCAN_START);
@@ -356,6 +350,14 @@ public class BleTapTapService extends Service {
         BluetoothGattService retVal = null;
         if (null != mBluetoothGatt) {
             retVal = mBluetoothGatt.getService(TapGattAttributes.RX_SERVICE_UUID);
+        }
+        return retVal;
+    }
+
+    public List<BluetoothGattService> getServices() {
+        List<BluetoothGattService> retVal = null;
+        if (null != mBluetoothGatt) {
+            retVal = mBluetoothGatt.getServices();
         }
         return retVal;
     }

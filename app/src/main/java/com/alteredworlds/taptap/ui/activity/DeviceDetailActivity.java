@@ -1,5 +1,6 @@
 package com.alteredworlds.taptap.ui.activity;
 
+import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -24,6 +25,8 @@ import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
 
+import java.util.List;
+
 public class DeviceDetailActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
     public static final String EXTRA_DEVICE_URI = "DEVICE_URI";
@@ -46,11 +49,23 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             Log.d(LOG_TAG, action);
             if (TapGattAttributes.ACTION_GATT_DISCONNECTED.equals(action)) {
             } else if (TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                if ((null == mService) || (null == mService.getSupportedGattService())) {
-                    mStatusTextView.setText("");
+                StringBuilder sb = new StringBuilder();
+                if (null == mService) {
+                    sb.append("Disconnected");
                 } else {
-                    mStatusTextView.setText("THIS IS OURS, BABY!");
+                    // show list of all service provided
+                    List<BluetoothGattService> gattServices = mService.getServices();
+                    if (null != gattServices) {
+                        for (BluetoothGattService gattService : gattServices) {
+                            sb.append(gattService.getUuid());
+                            sb.append("\n");
+                        }
+                    }
+                    if (null != mService.getSupportedGattService()) {
+                        sb.append("THIS IS OURS, BABY!");
+                    }
                 }
+                mStatusTextView.setText(sb.toString());
             } else if (TapGattAttributes.ACTION_DATA_AVAILABLE.equals(action)) {
                 //displayData(intent.getByteArrayExtra(RBLService.EXTRA_DATA));
             }
@@ -64,6 +79,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             // We've bound to LocalService, cast the IBinder and get BleTapTapService instance
             BleTapTapService.LocalBinder binder = (BleTapTapService.LocalBinder) service;
             mService = binder.getService();
+            getSupportLoaderManager().initLoader(DEVICE_INFO_LOADER_ID, null, DeviceDetailActivity.this);
         }
 
         @Override
@@ -113,7 +129,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         super.onStop();
         // Unbind from the service
         if (null != mService) {
-            mService.disconnect();
+            mService.close();
             unbindService(mConnection);
             mService = null;
         }
@@ -126,8 +142,6 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mGattUpdateReceiver,
                 makeGattUpdateIntentFilter());
-
-        getSupportLoaderManager().initLoader(DEVICE_INFO_LOADER_ID, null, this);
     }
 
     @Override
