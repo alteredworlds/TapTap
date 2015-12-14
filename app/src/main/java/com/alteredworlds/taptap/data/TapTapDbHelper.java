@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.alteredworlds.taptap.data.TapTapDataContract.DeviceEntry;
+import com.alteredworlds.taptap.data.TapTapDataContract.TemperatureRecordEntry;
 
 /**
  * Created by twcgilbert on 09/12/2015.
@@ -26,7 +27,21 @@ public class TapTapDbHelper extends SQLiteOpenHelper {
                 DeviceEntry.COLUMN_ADDRESS + " TEXT NOT NULL UNIQUE ON CONFLICT REPLACE, " +
                 DeviceEntry.COLUMN_NAME + " TEXT );";
 
+        final String SQL_CREATE_TEMPERATURE_TABLE = "CREATE TABLE " + TemperatureRecordEntry.TABLE_NAME + " (" +
+                TemperatureRecordEntry._ID + " INTEGER NOT NULL PRIMARY KEY," +
+                TemperatureRecordEntry.COLUMN_DEVICE_ID + " INTEGER NOT NULL, " +
+                TemperatureRecordEntry.COLUMN_TIMESTAMP + " INTEGER(4) NOT NULL, " +
+                TemperatureRecordEntry.COLUMN_VALUE0 + " INTEGER(4), " +
+                TemperatureRecordEntry.COLUMN_VALUE1 + " INTEGER(4), " +
+                TemperatureRecordEntry.COLUMN_VALUE2 + " INTEGER(4), " +
+
+                // Set up the device_id column as a foreign key to device table.
+                " FOREIGN KEY (" + TemperatureRecordEntry.COLUMN_DEVICE_ID + ") REFERENCES " +
+                DeviceEntry.TABLE_NAME + " (" + DeviceEntry._ID + ")" +
+                ");";
+
         db.execSQL(SQL_CREATE_DEVICE_TABLE);
+        db.execSQL(SQL_CREATE_TEMPERATURE_TABLE);
     }
 
     @Override

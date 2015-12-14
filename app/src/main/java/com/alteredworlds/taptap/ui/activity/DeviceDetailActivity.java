@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 import com.alteredworlds.taptap.R;
 import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
-import com.alteredworlds.taptap.data.converter.TemperatureReadingConverter;
+import com.alteredworlds.taptap.data.converter.TemperatureRecordConverter;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
 
@@ -82,7 +82,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                 // notified that new data has ben received over serial connection
                 byte[] data = intent.getByteArrayExtra(BleTapTapService.EXTRA_DATA);
                 Log.d(LOG_TAG, "Received new data: " + data);
-                TemperatureReadingConverter.fromByteArray(data);
+                TemperatureRecordConverter.fromByteArray(data);
             }
         }
     };

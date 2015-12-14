@@ -51,13 +51,27 @@ public class TapTapDbTests extends DatabaseTestCase {
         db.close();
     }
 
-    public void testInsertReadDb() {
+    public void testInsertReadDevice() {
         mContext.deleteDatabase(TapTapDbHelper.DATABASE_NAME);
         TapTapDbHelper dbHelper = new TapTapDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues contentValues = TapTapSamplesFactory.createEntryContentValues();
+        ContentValues contentValues = TapTapSamplesFactory.createDeviceContentValues();
         runTableInsertReadTest(db, TapTapDataContract.DeviceEntry.TABLE_NAME, contentValues);
+
+        dbHelper.close();
+    }
+
+    public void testInsertReadDeviceWithTemperature() {
+        mContext.deleteDatabase(TapTapDbHelper.DATABASE_NAME);
+        TapTapDbHelper dbHelper = new TapTapDbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues contentValues = TapTapSamplesFactory.createDeviceContentValues();
+        long id = runTableInsertReadTest(db, TapTapDataContract.DeviceEntry.TABLE_NAME, contentValues);
+
+        ContentValues tempValues = TapTapSamplesFactory.createTemperatureContentValues(id);
+        runTableInsertReadTest(db, TapTapDataContract.TemperatureRecordEntry.TABLE_NAME, tempValues);
 
         dbHelper.close();
     }

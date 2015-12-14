@@ -3,14 +3,14 @@ package com.alteredworlds.taptap.data.converter;
 import android.content.ContentValues;
 import android.util.Log;
 
+import com.alteredworlds.taptap.data.TapTapDataContract.TemperatureRecordEntry;
+
 /**
  * Created by twcgilbert on 14/12/2015.
  */
-public class TemperatureReadingConverter {
+public class TemperatureRecordConverter {
     // these constants will be moved to TapTapDataContract
-    public static final String COLUMN_TIMESTAMP = "timestamp";
-    public static final String COLUMN_TEMP = "temp";
-    private static final String LOG_TAG = TemperatureReadingConverter.class.getSimpleName();
+    private static final String LOG_TAG = TemperatureRecordConverter.class.getSimpleName();
 
     public static ContentValues fromByteArray(byte[] data) {
         ContentValues cv = new ContentValues(2);
@@ -26,7 +26,7 @@ public class TemperatureReadingConverter {
                 int tmp = unsignedBytesToInt(data[0], data[1], data[2], data[3]);
                 // so need to keep value in a (64 bit) long
                 long dateTime = tmp & 0xffffffffL;
-                cv.put(COLUMN_TIMESTAMP, dateTime);
+                cv.put(TemperatureRecordEntry.COLUMN_TIMESTAMP, dateTime);
                 Log.i(LOG_TAG, "Timestamp: " + dateTime);
 
                 // OK, now to read one or more 16 bit temp values
@@ -36,8 +36,12 @@ public class TemperatureReadingConverter {
                     // read each temperature value
                     int offset = 4 + 2 * tempIdx;
                     int reading = unsignedBytesToInt(data[offset], data[offset + 1]);
-                    cv.put(COLUMN_TEMP, reading);
-                    Log.i(LOG_TAG, "Temperature: " + reading);
+
+                    String columnName = TemperatureRecordEntry.getColumnNameForValue(tempIdx);
+                    if (null != columnName) {
+                        cv.put(columnName, reading);
+                    }
+                    Log.i(LOG_TAG, "Index: " + tempIdx + "  Temperature: " + reading);
                 }
             }
         }

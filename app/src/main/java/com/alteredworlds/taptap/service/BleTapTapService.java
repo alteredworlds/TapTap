@@ -425,9 +425,6 @@ public class BleTapTapService extends Service {
         return retVal;
     }
 
-
-    // ADDED FOR TESTING - this is *surely* not the right way to do this stuff
-
     // static class with weak reference used to prevent memory leak
     static class BleTapServiceHandler extends Handler {
         private final WeakReference<BleTapTapService> mService;

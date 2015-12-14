@@ -7,12 +7,23 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.alteredworlds.taptap.data.TapTapDataContract.DeviceEntry;
+import com.alteredworlds.taptap.data.TapTapDataContract.TemperatureRecordEntry;
 
 /**
  * Created by twcgilbert on 09/12/2015.
  */
 public class TapTapContentProviderTests extends DatabaseTestCase {
     private static final String LOG_TAG = TapTapContentProviderTests.class.getSimpleName();
+
+    // Since we want each test to start with a clean slate, run deleteAllRecords
+    // in setUp (called by the test runner before each test).
+    @Override
+    public void setUp() {
+        if (!removeDatabaseOnce()) {
+            // remove any records in database
+            deleteAllRecords();
+        }
+    }
 
     public void testGetType() {
         // Device
@@ -21,11 +32,25 @@ public class TapTapContentProviderTests extends DatabaseTestCase {
 
         type = mContext.getContentResolver().getType(DeviceEntry.buildUri(1L));
         assertEquals(DeviceEntry.CONTENT_ITEM_TYPE, type);
+
+        type = mContext.getContentResolver().getType(TemperatureRecordEntry.CONTENT_URI);
+        assertEquals(TemperatureRecordEntry.CONTENT_TYPE, type);
+
+        type = mContext.getContentResolver().getType(TemperatureRecordEntry.buildUri(1L));
+        assertEquals(TemperatureRecordEntry.CONTENT_ITEM_TYPE, type);
     }
 
     public void testInsertReadDevice() {
-        ContentValues contentValues = TapTapSamplesFactory.createEntryContentValues();
+        ContentValues contentValues = TapTapSamplesFactory.createDeviceContentValues();
         runInsertReadTest(DeviceEntry.CONTENT_URI, contentValues);
+    }
+
+    public void testInsertReadDeviceWithTemperature() {
+        ContentValues contentValues = TapTapSamplesFactory.createDeviceContentValues();
+        long id = runInsertReadTest(DeviceEntry.CONTENT_URI, contentValues);
+
+        ContentValues tempValues = TapTapSamplesFactory.createTemperatureContentValues(id);
+        runInsertReadTest(TemperatureRecordEntry.CONTENT_URI, tempValues);
     }
 
     protected long runInsertReadTest(Uri uri, ContentValues testValues) {
@@ -44,5 +69,26 @@ public class TapTapContentProviderTests extends DatabaseTestCase {
         validateCursor(cursor, testValues);
         cursor.close();
         return retVal;
+    }
+
+    // brings our database to an empty state
+    protected void deleteAllRecords() {
+        deleteAndTestAllRecordsForURI(TemperatureRecordEntry.CONTENT_URI);
+        deleteAndTestAllRecordsForURI(DeviceEntry.CONTENT_URI);
+    }
+
+    protected void deleteAndTestAllRecordsForURI(Uri uri) {
+        mContext.getContentResolver().delete(
+                uri,
+                null,
+                null);
+        Cursor cursor = mContext.getContentResolver().query(
+                uri,
+                null,
+                null,
+                null,
+                null);
+        assertEquals(0, cursor.getCount());
+        cursor.close();
     }
 }

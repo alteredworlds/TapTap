@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.alteredworlds.taptap.data.TapTapDataContract.DeviceEntry;
+import com.alteredworlds.taptap.data.TapTapDataContract.TemperatureRecordEntry;
 
 /**
  * Created by twcgilbert on 09/12/2015.
@@ -24,23 +25,39 @@ public class TapTapContentProvider extends ContentProvider {
 
     private static final int DEVICE = 100;
     private static final int DEVICE_ID = 101;
+
+    private static final int TEMPERATURE = 200;
+    private static final int TEMPERATURE_ID = 201;
+
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private TapTapDbHelper mDbHelper;
 
     private static UriMatcher buildUriMatcher() {
         final UriMatcher retVal = new UriMatcher(UriMatcher.NO_MATCH);
 
-        // all TransitStops
+        // all Devices
         retVal.addURI(
                 TapTapDataContract.CONTENT_AUTHORITY,
                 TapTapDataContract.PATH_DEVICE,
                 DEVICE);
 
-        // a specific TransitStop (by ID)
+        // a specific Device (by ID)
         retVal.addURI(
                 TapTapDataContract.CONTENT_AUTHORITY,
                 TapTapDataContract.PATH_DEVICE + "/#",
                 DEVICE_ID);
+
+        // all Temperatures
+        retVal.addURI(
+                TapTapDataContract.CONTENT_AUTHORITY,
+                TapTapDataContract.PATH_TEMPERATURE,
+                TEMPERATURE);
+
+        // a specific Temperature (by ID)
+        retVal.addURI(
+                TapTapDataContract.CONTENT_AUTHORITY,
+                TapTapDataContract.PATH_TEMPERATURE + "/#",
+                TEMPERATURE_ID);
 
         return retVal;
     }
@@ -91,6 +108,40 @@ public class TapTapContentProvider extends ContentProvider {
                 break;
             }
 
+            // "temperature"
+            case TEMPERATURE: {
+                retCursor = mDbHelper.getReadableDatabase().query(
+                        TemperatureRecordEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            // "temperature/#"
+            case TEMPERATURE_ID: {
+                // extract ID and add a where clause
+                long id = ContentUris.parseId(uri);
+
+                SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+                queryBuilder.setTables(TemperatureRecordEntry.TABLE_NAME);
+                queryBuilder.appendWhere(TemperatureRecordEntry._ID + " = " + id);
+
+                retCursor = queryBuilder.query(
+                        mDbHelper.getReadableDatabase(),
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+
             default:
                 throw new UnsupportedOperationException("Unsupported uri: " + uri);
         }
@@ -118,6 +169,17 @@ public class TapTapContentProvider extends ContentProvider {
             }
             break;
 
+            case TEMPERATURE: {
+                long _id = db.insert(TemperatureRecordEntry.TABLE_NAME, null, values);
+                if (_id >= 0) {
+                    retVal = TemperatureRecordEntry.buildUri(_id);
+                    Log.d(LOG_TAG, "Inserted new temperature");
+                } else {
+                    throw new SQLException("Failed to insert row into " + TemperatureRecordEntry.TABLE_NAME);
+                }
+                break;
+            }
+
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
@@ -133,6 +195,10 @@ public class TapTapContentProvider extends ContentProvider {
         switch (match) {
             case DEVICE:
                 numRows = db.delete(DeviceEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case TEMPERATURE:
+                numRows = db.delete(TemperatureRecordEntry.TABLE_NAME, selection, selectionArgs);
                 break;
 
             default:
@@ -152,6 +218,10 @@ public class TapTapContentProvider extends ContentProvider {
         switch (match) {
             case DEVICE:
                 numRows = db.update(DeviceEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+
+            case TEMPERATURE:
+                numRows = db.update(TemperatureRecordEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
 
             default:
@@ -175,6 +245,14 @@ public class TapTapContentProvider extends ContentProvider {
 
             case DEVICE_ID:
                 retVal = DeviceEntry.CONTENT_ITEM_TYPE;
+                break;
+
+            case TEMPERATURE:
+                retVal = TemperatureRecordEntry.CONTENT_TYPE;
+                break;
+
+            case TEMPERATURE_ID:
+                retVal = TemperatureRecordEntry.CONTENT_ITEM_TYPE;
                 break;
 
             default:
