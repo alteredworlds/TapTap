@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.alteredworlds.taptap.data.TapTapDataContract.DeviceEntry;
 import com.alteredworlds.taptap.data.TapTapDataContract.TemperatureRecordEntry;
+import com.alteredworlds.taptap.data.converter.TemperatureRecordConverter;
 
 /**
  * Created by twcgilbert on 09/12/2015.
@@ -173,7 +174,7 @@ public class TapTapContentProvider extends ContentProvider {
                 long _id = db.insert(TemperatureRecordEntry.TABLE_NAME, null, values);
                 if (_id >= 0) {
                     retVal = TemperatureRecordEntry.buildUri(_id);
-                    Log.d(LOG_TAG, "Inserted new temperature");
+                    Log.d(LOG_TAG, "Inserted new temperature " + TemperatureRecordConverter.describe(values));
                 } else {
                     throw new SQLException("Failed to insert row into " + TemperatureRecordEntry.TABLE_NAME);
                 }

@@ -15,6 +15,7 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
@@ -28,6 +29,7 @@ import android.util.Log;
 
 import com.alteredworlds.taptap.data.TapTapDataContract;
 import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
+import com.alteredworlds.taptap.data.converter.TemperatureRecordConverter;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -104,14 +106,14 @@ public class BleTapTapService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(TapGattAttributes.ACTION_DATA_AVAILABLE, characteristic);
+                characteristicDataAvailable(gatt, characteristic);
             }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-            broadcastUpdate(TapGattAttributes.ACTION_DATA_AVAILABLE, characteristic);
+            characteristicDataAvailable(gatt, characteristic);
         }
 
         @Override
@@ -163,14 +165,36 @@ public class BleTapTapService extends Service {
     }
 
     private void broadcastUpdate(final String action,
-                                 final BluetoothGattCharacteristic characteristic) {
+                                 final byte[] data) {
         final Intent intent = new Intent(action);
-        if (RX_CHAR_UUID.equals(characteristic.getUuid())) {
-            // Log.d(TAG, String.format("Received TX: %d",characteristic.getValue() ));
-            intent.putExtra(EXTRA_DATA, characteristic.getValue());
+        if (null != data) {
+            intent.putExtra(EXTRA_DATA, data);
         }
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
+
+    private void characteristicDataAvailable(BluetoothGatt gatt,
+                                             BluetoothGattCharacteristic characteristic) {
+        final byte[] data;
+        if (RX_CHAR_UUID.equals(characteristic.getUuid())) {
+            // Log.d(TAG, String.format("Received TX: %d",characteristic.getValue() ));
+            data = characteristic.getValue();
+            // retrieve temperature record information from byte[] buffer
+            ContentValues cv = TemperatureRecordConverter.fromByteArray(data);
+            if (cv.size() > 0) {
+                cv.put(TapTapDataContract.TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS,
+                        mBluetoothDeviceAddress);
+                // now add to our data store
+                getContentResolver().insert(
+                        TapTapDataContract.TemperatureRecordEntry.CONTENT_URI,
+                        cv);
+            }
+        } else {
+            data = null;
+        }
+        broadcastUpdate(TapGattAttributes.ACTION_DATA_AVAILABLE, data);
+    }
+
 
     private boolean addDevice(BluetoothDevice device) {
         boolean retVal = false;

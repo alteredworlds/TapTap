@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.alteredworlds.taptap.data.TapTapDataContract;
 import com.alteredworlds.taptap.data.TapTapDataContract.DeviceEntry;
 import com.alteredworlds.taptap.data.TapTapDataContract.TemperatureRecordEntry;
 
@@ -47,9 +48,10 @@ public class TapTapContentProviderTests extends DatabaseTestCase {
 
     public void testInsertReadDeviceWithTemperature() {
         ContentValues contentValues = TapTapSamplesFactory.createDeviceContentValues();
-        long id = runInsertReadTest(DeviceEntry.CONTENT_URI, contentValues);
+        String deviceAddress = contentValues.getAsString(TapTapDataContract.DeviceEntry.COLUMN_ADDRESS);
+        runInsertReadTest(DeviceEntry.CONTENT_URI, contentValues);
 
-        ContentValues tempValues = TapTapSamplesFactory.createTemperatureContentValues(id);
+        ContentValues tempValues = TapTapSamplesFactory.createTemperatureContentValues(deviceAddress);
         runInsertReadTest(TemperatureRecordEntry.CONTENT_URI, tempValues);
     }
 

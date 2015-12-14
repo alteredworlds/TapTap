@@ -44,7 +44,7 @@ public class TapTapDataContract {
         public static final String TABLE_NAME = "temperature";
 
         // foreign key into device table
-        public static final String COLUMN_DEVICE_ID = "device_id";
+        public static final String COLUMN_DEVICE_ADDRESS = "device_address";
 
         // when tap measurement was taken
         public static final String COLUMN_TIMESTAMP = "timestamp";

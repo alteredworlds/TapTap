@@ -25,7 +25,6 @@ import android.widget.TextView;
 
 import com.alteredworlds.taptap.R;
 import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
-import com.alteredworlds.taptap.data.converter.TemperatureRecordConverter;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
 
@@ -56,9 +55,10 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            Log.d(LOG_TAG, action);
             if (TapGattAttributes.ACTION_GATT_DISCONNECTED.equals(action)) {
+                Log.d(LOG_TAG, action);
             } else if (TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                Log.d(LOG_TAG, action);
                 boolean controlsVisible = false;
                 StringBuilder sb = new StringBuilder();
                 if (null == mService) {
@@ -80,9 +80,9 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                 mControlsLayout.setVisibility(controlsVisible ? View.VISIBLE : View.GONE);
             } else if (TapGattAttributes.ACTION_DATA_AVAILABLE.equals(action)) {
                 // notified that new data has ben received over serial connection
-                byte[] data = intent.getByteArrayExtra(BleTapTapService.EXTRA_DATA);
-                Log.d(LOG_TAG, "Received new data: " + data);
-                TemperatureRecordConverter.fromByteArray(data);
+//                byte[] data = intent.getByteArrayExtra(BleTapTapService.EXTRA_DATA);
+//                Log.d(LOG_TAG, "Received new data: " + data);
+//                TemperatureRecordConverter.fromByteArray(data);
             }
         }
     };

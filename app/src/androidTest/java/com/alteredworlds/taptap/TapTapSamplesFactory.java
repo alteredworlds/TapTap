@@ -19,10 +19,10 @@ public class TapTapSamplesFactory {
         return retVal;
     }
 
-    public static ContentValues createTemperatureContentValues(long id) {
+    public static ContentValues createTemperatureContentValues(String address) {
         ContentValues retVal = new ContentValues();
         retVal.put(TemperatureRecordEntry._ID, "1");
-        retVal.put(TemperatureRecordEntry.COLUMN_DEVICE_ID, id);
+        retVal.put(TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS, address);
         retVal.put(TemperatureRecordEntry.COLUMN_TIMESTAMP, new Date().getTime());
         retVal.put(TemperatureRecordEntry.COLUMN_VALUE0, 720);
         retVal.put(TemperatureRecordEntry.COLUMN_VALUE1, 128);

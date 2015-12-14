@@ -68,9 +68,10 @@ public class TapTapDbTests extends DatabaseTestCase {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues contentValues = TapTapSamplesFactory.createDeviceContentValues();
-        long id = runTableInsertReadTest(db, TapTapDataContract.DeviceEntry.TABLE_NAME, contentValues);
+        String deviceAddress = contentValues.getAsString(TapTapDataContract.DeviceEntry.COLUMN_ADDRESS);
+        runTableInsertReadTest(db, TapTapDataContract.DeviceEntry.TABLE_NAME, contentValues);
 
-        ContentValues tempValues = TapTapSamplesFactory.createTemperatureContentValues(id);
+        ContentValues tempValues = TapTapSamplesFactory.createTemperatureContentValues(deviceAddress);
         runTableInsertReadTest(db, TapTapDataContract.TemperatureRecordEntry.TABLE_NAME, tempValues);
 
         dbHelper.close();
@@ -80,6 +81,7 @@ public class TapTapDbTests extends DatabaseTestCase {
     protected void deleteAllRecords() {
         TapTapDbHelper dbHelper = new TapTapDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.delete(TapTapDataContract.TemperatureRecordEntry.TABLE_NAME, null, null);
         db.delete(TapTapDataContract.DeviceEntry.TABLE_NAME, null, null);
     }
 }

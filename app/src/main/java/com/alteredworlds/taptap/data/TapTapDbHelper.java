@@ -29,15 +29,15 @@ public class TapTapDbHelper extends SQLiteOpenHelper {
 
         final String SQL_CREATE_TEMPERATURE_TABLE = "CREATE TABLE " + TemperatureRecordEntry.TABLE_NAME + " (" +
                 TemperatureRecordEntry._ID + " INTEGER NOT NULL PRIMARY KEY," +
-                TemperatureRecordEntry.COLUMN_DEVICE_ID + " INTEGER NOT NULL, " +
+                TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS + " TEXT NOT NULL, " +
                 TemperatureRecordEntry.COLUMN_TIMESTAMP + " INTEGER(4) NOT NULL, " +
                 TemperatureRecordEntry.COLUMN_VALUE0 + " INTEGER(4), " +
                 TemperatureRecordEntry.COLUMN_VALUE1 + " INTEGER(4), " +
                 TemperatureRecordEntry.COLUMN_VALUE2 + " INTEGER(4), " +
 
-                // Set up the device_id column as a foreign key to device table.
-                " FOREIGN KEY (" + TemperatureRecordEntry.COLUMN_DEVICE_ID + ") REFERENCES " +
-                DeviceEntry.TABLE_NAME + " (" + DeviceEntry._ID + ")" +
+                // Set up the COLUMN_DEVICE_ADDRESS as a foreign key to device table.
+                " FOREIGN KEY (" + TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS + ") REFERENCES " +
+                DeviceEntry.TABLE_NAME + " (" + DeviceEntry.COLUMN_ADDRESS + ")" +
                 ");";
 
         db.execSQL(SQL_CREATE_DEVICE_TABLE);
