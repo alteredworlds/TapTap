@@ -42,6 +42,9 @@ public class BleTapTapService extends Service {
     public final static UUID TX_CHAR_UUID = UUID.fromString("713d0003-503e-4c75-ba94-3148f18d941e");
     public final static UUID RX_CHAR_UUID = UUID.fromString("713d0002-503e-4c75-ba94-3148f18d941e");
     public final static UUID RX_SERVICE_UUID = UUID.fromString("713d0000-503e-4c75-ba94-3148f18d941e");
+
+    public final static String EXTRA_DATA = "awUART.EXTRA_DATA";
+
     private static final String LOG_TAG = BleTapTapService.class.getSimpleName();
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -155,20 +158,16 @@ public class BleTapTapService extends Service {
 
     private void broadcastUpdate(final String action, int rssi) {
         final Intent intent = new Intent(action);
-        intent.putExtra(TapGattAttributes.EXTRA_DATA, String.valueOf(rssi));
+        intent.putExtra(EXTRA_DATA, String.valueOf(rssi));
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
-
-        // This is special handling for the Heart Rate Measurement profile.  Data parsing is
-        // carried out as per profile specifications:
-        // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
-        if (TX_CHAR_UUID.equals(characteristic.getUuid())) {
+        if (RX_CHAR_UUID.equals(characteristic.getUuid())) {
             // Log.d(TAG, String.format("Received TX: %d",characteristic.getValue() ));
-            intent.putExtra(TapGattAttributes.EXTRA_DATA, characteristic.getValue());
+            intent.putExtra(EXTRA_DATA, characteristic.getValue());
         }
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
@@ -387,10 +386,12 @@ public class BleTapTapService extends Service {
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
         if (RX_CHAR_UUID.equals(characteristic.getUuid())) {
-            BluetoothGattDescriptor descriptor =
-                    characteristic.getDescriptor(TapGattAttributes.CLIENT_CHARACTERISTIC_CONFIG);
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+                    TapGattAttributes.CLIENT_CHARACTERISTIC_CONFIG);
             if (null != descriptor) {
-                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                descriptor.setValue(enabled ?
+                        BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE :
+                        BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
                 mBluetoothGatt.writeDescriptor(descriptor);
             }
         }

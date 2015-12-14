@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.alteredworlds.taptap.R;
 import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
+import com.alteredworlds.taptap.data.converter.TemperatureReadingConverter;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
 
@@ -78,7 +79,10 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                 mStatusTextView.setText(sb.toString());
                 mControlsLayout.setVisibility(controlsVisible ? View.VISIBLE : View.GONE);
             } else if (TapGattAttributes.ACTION_DATA_AVAILABLE.equals(action)) {
-                //displayData(intent.getByteArrayExtra(RBLService.EXTRA_DATA));
+                // notified that new data has ben received over serial connection
+                byte[] data = intent.getByteArrayExtra(BleTapTapService.EXTRA_DATA);
+                Log.d(LOG_TAG, "Received new data: " + data);
+                TemperatureReadingConverter.fromByteArray(data);
             }
         }
     };
