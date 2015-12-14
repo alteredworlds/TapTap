@@ -58,6 +58,14 @@ public class TapTapDataContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
+        public static Uri buildUriForAddress(String address) {
+            return CONTENT_URI.buildUpon().appendPath(address).build();
+        }
+
+        public static String getAddress(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
+
         public static String getColumnNameForValue(int value) {
             final String retVal;
             switch (value) {

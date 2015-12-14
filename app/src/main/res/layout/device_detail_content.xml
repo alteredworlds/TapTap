@@ -33,31 +33,43 @@
         android:layout_gravity="center_horizontal"
         android:padding="10dp" />
 
+    <!--<LinearLayout-->
+    <!--android:id="@+id/controlsLayout"-->
+    <!--style="?@android:attr/buttonBarStyle"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="center_horizontal"-->
+    <!--android:orientation="horizontal"-->
+    <!--android:visibility="gone">-->
+
+    <!--<Button-->
+    <!--android:id="@+id/startLogging"-->
+    <!--style="?@android:attr/buttonBarButtonStyle"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="Start Logging"/>-->
+
+    <!--<Button-->
+    <!--android:id="@+id/stopLogging"-->
+    <!--style="?@android:attr/buttonBarButtonStyle"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="Stop Logging"/>-->
+
+    <!--</LinearLayout>-->
+
     <LinearLayout
         android:id="@+id/controlsLayout"
-        style="?@android:attr/buttonBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:visibility="gone">
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <Button
-            android:id="@+id/startLogging"
-            style="?@android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start Logging">
+        <ListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        </Button>
-
-        <Button
-            android:id="@+id/stopLogging"
-            style="?@android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stop Logging"></Button>
-
+        </ListView>
     </LinearLayout>
 
 </LinearLayout>

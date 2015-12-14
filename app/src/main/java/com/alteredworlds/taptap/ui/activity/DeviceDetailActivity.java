@@ -20,13 +20,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.alteredworlds.taptap.R;
+import com.alteredworlds.taptap.data.TapTapDataContract;
 import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
+import com.alteredworlds.taptap.ui.adapter.TemperatureListAdapter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,12 +40,17 @@ public class DeviceDetailActivity extends AppCompatActivity implements
     public static final String EXTRA_DEVICE_URI = "DEVICE_URI";
     private static final String LOG_TAG = DeviceDetailActivity.class.getSimpleName();
     private static final int DEVICE_INFO_LOADER_ID = 2;
+    private static final int DEVICE_MEASUREMENTS_LOADER_ID = 3;
 
     private Uri mDeviceUri;
+    private String mDeviceAddress;
+
     private TextView mAddressTextView;
     private TextView mNameTextView;
     private TextView mStatusTextView;
     private View mControlsLayout;
+
+    private TemperatureListAdapter mTemperatureAdapter;
 
     // wrong scope, surely? Shouldn't these belong to the service?
     private Map<UUID, BluetoothGattCharacteristic> mCharacteristics = new HashMap<>();
@@ -146,25 +153,29 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         mStatusTextView = (TextView) findViewById(R.id.statusTextView);
         mControlsLayout = findViewById(R.id.controlsLayout);
 
-        Button button = (Button) findViewById(R.id.startLogging);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(LOG_TAG, "onClick: Start Logging");
-                char buf[] = {'O'};
-                sendCommand(buf);
-            }
-        });
+        mTemperatureAdapter = new TemperatureListAdapter(this, null, 0);
+        ListView listView = (ListView) findViewById(R.id.listView);
+        listView.setAdapter(mTemperatureAdapter);
 
-        button = (Button) findViewById(R.id.stopLogging);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(LOG_TAG, "onClick: Stop Logging");
-                char buf[] = {'C'};
-                sendCommand(buf);
-            }
-        });
+//        Button button = (Button) findViewById(R.id.startLogging);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Log.d(LOG_TAG, "onClick: Start Logging");
+//                char buf[] = {'O'};
+//                sendCommand(buf);
+//            }
+//        });
+//
+//        button = (Button) findViewById(R.id.stopLogging);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Log.d(LOG_TAG, "onClick: Stop Logging");
+//                char buf[] = {'C'};
+//                sendCommand(buf);
+//            }
+//        });
 
     }
 
@@ -217,6 +228,16 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                         null);  // sort order
                 break;
 
+            case DEVICE_MEASUREMENTS_LOADER_ID:
+                retVal = new CursorLoader(
+                        this,
+                        TapTapDataContract.TemperatureRecordEntry.buildUriForAddress(mDeviceAddress),
+                        null,   // projection
+                        null,   // selection
+                        null,   // selectionArgs
+                        TapTapDataContract.TemperatureRecordEntry.COLUMN_TIMESTAMP + " DESC");  // sort order
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown Loader ID: " + id);
         }
@@ -231,6 +252,11 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                 setDeviceInfo(data);
                 break;
 
+            case DEVICE_MEASUREMENTS_LOADER_ID:
+                // update list adapter
+                mTemperatureAdapter.swapCursor(data);
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown Loader ID: " + loader.getId());
         }
@@ -238,22 +264,36 @@ public class DeviceDetailActivity extends AppCompatActivity implements
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        switch (loader.getId()) {
+            case DEVICE_INFO_LOADER_ID:
+                break;
 
+            case DEVICE_MEASUREMENTS_LOADER_ID:
+                // update list adapter
+                mTemperatureAdapter.swapCursor(null);
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown Loader ID: " + loader.getId());
+        }
     }
 
     private void setDeviceInfo(Cursor data) {
         if ((null != data) && data.moveToFirst()) {
             BluetoothDeviceConverter.ColumnIndices columnIndices = new BluetoothDeviceConverter.ColumnIndices(data);
             // required field
-            String deviceAddress = data.getString(columnIndices.colADDRESS);
-            mAddressTextView.setText(deviceAddress);
+            mDeviceAddress = data.getString(columnIndices.colADDRESS);
+            mAddressTextView.setText(mDeviceAddress);
             // optional
             String name = data.isNull(columnIndices.colNAME) ? "" : data.getString(columnIndices.colNAME);
             mNameTextView.setText(name);
 
+            // now we have the address, we can start the measurements loader
+            getSupportLoaderManager().initLoader(DEVICE_MEASUREMENTS_LOADER_ID, null, this);
+
             // try connecting to the device
             if (null != mService) {
-                mService.connect(deviceAddress);
+                mService.connect(mDeviceAddress);
             }
         }
     }

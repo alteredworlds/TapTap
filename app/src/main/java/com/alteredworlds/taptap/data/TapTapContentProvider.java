@@ -29,6 +29,7 @@ public class TapTapContentProvider extends ContentProvider {
 
     private static final int TEMPERATURE = 200;
     private static final int TEMPERATURE_ID = 201;
+    private static final int TEMPERATURE_ADDRESS = 202;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private TapTapDbHelper mDbHelper;
@@ -59,6 +60,12 @@ public class TapTapContentProvider extends ContentProvider {
                 TapTapDataContract.CONTENT_AUTHORITY,
                 TapTapDataContract.PATH_TEMPERATURE + "/#",
                 TEMPERATURE_ID);
+
+        // set of Temperatures for Device Address
+        retVal.addURI(
+                TapTapDataContract.CONTENT_AUTHORITY,
+                TapTapDataContract.PATH_TEMPERATURE + "/*",
+                TEMPERATURE_ADDRESS);
 
         return retVal;
     }
@@ -130,6 +137,26 @@ public class TapTapContentProvider extends ContentProvider {
                 SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
                 queryBuilder.setTables(TemperatureRecordEntry.TABLE_NAME);
                 queryBuilder.appendWhere(TemperatureRecordEntry._ID + " = " + id);
+
+                retCursor = queryBuilder.query(
+                        mDbHelper.getReadableDatabase(),
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            // "temperature/*"
+            case TEMPERATURE_ADDRESS: {
+                // extract Address and add a where clause
+                String address = TemperatureRecordEntry.getAddress(uri);
+
+                SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+                queryBuilder.setTables(TemperatureRecordEntry.TABLE_NAME);
+                queryBuilder.appendWhere(TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS + " = '" + address + "'");
 
                 retCursor = queryBuilder.query(
                         mDbHelper.getReadableDatabase(),
@@ -254,6 +281,10 @@ public class TapTapContentProvider extends ContentProvider {
 
             case TEMPERATURE_ID:
                 retVal = TemperatureRecordEntry.CONTENT_ITEM_TYPE;
+                break;
+
+            case TEMPERATURE_ADDRESS:
+                retVal = TemperatureRecordEntry.CONTENT_TYPE;
                 break;
 
             default:
