@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -29,7 +30,10 @@ import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
 import com.alteredworlds.taptap.ui.adapter.TemperatureListAdapter;
+import com.alteredworlds.taptap.util.Primitives;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,15 +161,21 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         ListView listView = (ListView) findViewById(R.id.listView);
         listView.setAdapter(mTemperatureAdapter);
 
-//        Button button = (Button) findViewById(R.id.startLogging);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.d(LOG_TAG, "onClick: Start Logging");
-//                char buf[] = {'O'};
-//                sendCommand(buf);
-//            }
-//        });
+        Button button = (Button) findViewById(R.id.getTemperatures);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Date forDate = new Date();
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(forDate);
+                cal.set(Calendar.YEAR, 2015);
+                cal.set(Calendar.MONTH, 12);
+                cal.set(Calendar.DAY_OF_MONTH, 18);
+                forDate = cal.getTime();
+                Log.d(LOG_TAG, "onClick: Request Temperatures for " + forDate);
+                requestTemperaturesForDate(forDate);
+            }
+        });
 //
 //        button = (Button) findViewById(R.id.stopLogging);
 //        button.setOnClickListener(new View.OnClickListener() {
@@ -298,16 +308,20 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         }
     }
 
-    protected void sendCommand(char[] data) {
+    protected void requestTemperaturesForDate(Date forDate) {
         if (null != mService) {
             BluetoothGattCharacteristic txCharc = mCharacteristics.get(BleTapTapService.TX_CHAR_UUID);
             if (null != txCharc) {
-                String value = new String(data);
-                if (txCharc.setValue(value)) {
+                byte[] data = new byte[5];
+                data[0] = 'G';
+                long time = forDate.getTime();
+                int intTime = (int) (time / 1000L);
+                Primitives.unsignedIntToBytes(data, 1, 4, intTime);
+                if (txCharc.setValue(data)) {
                     mService.writeCharacteristic(txCharc);
-                } else {
-                    Log.e(LOG_TAG, "Error: setValue!");
                 }
+            } else {
+                Log.e(LOG_TAG, "Error: setValue!");
             }
         }
     }

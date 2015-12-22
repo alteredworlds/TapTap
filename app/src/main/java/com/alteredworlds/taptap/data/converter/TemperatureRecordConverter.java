@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.util.Log;
 
 import com.alteredworlds.taptap.data.TapTapDataContract.TemperatureRecordEntry;
+import com.alteredworlds.taptap.util.Primitives;
 
 /**
  * Created by twcgilbert on 14/12/2015.
@@ -45,7 +46,7 @@ public class TemperatureRecordConverter {
             } else {
                 // read 32 bit unixtime
                 // NOTE: Java doesn't have unsigned int (32 bit)
-                int tmp = unsignedBytesToInt(data[0], data[1], data[2], data[3]);
+                int tmp = Primitives.unsignedBytesToInt(data[0], data[1], data[2], data[3]);
                 // so need to keep value in a (64 bit) long
                 long dateTime = tmp & 0xffffffffL;
                 cv.put(TemperatureRecordEntry.COLUMN_TIMESTAMP, dateTime);
@@ -56,7 +57,7 @@ public class TemperatureRecordConverter {
                 for (int tempIdx = 0; tempIdx < numTempValues; tempIdx++) {
                     // read each temperature value
                     int offset = 4 + 2 * tempIdx;
-                    int reading = unsignedBytesToInt(data[offset], data[offset + 1]);
+                    int reading = Primitives.unsignedBytesToInt(data[offset], data[offset + 1]);
 
                     String columnName = TemperatureRecordEntry.getColumnNameForValue(tempIdx);
                     if (null != columnName) {
@@ -66,27 +67,5 @@ public class TemperatureRecordConverter {
             }
         }
         return cv;
-    }
-
-    /**
-     * Convert signed bytes to a 32-bit unsigned int.
-     */
-    private static int unsignedBytesToInt(byte b0, byte b1, byte b2, byte b3) {
-        return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8))
-                + (unsignedByteToInt(b2) << 16) + (unsignedByteToInt(b3) << 24);
-    }
-
-    /**
-     * Convert a signed byte to an unsigned int.
-     */
-    private static int unsignedByteToInt(byte b) {
-        return b & 0xFF;
-    }
-
-    /**
-     * Convert signed bytes to a 16-bit unsigned int.
-     */
-    private static int unsignedBytesToInt(byte b0, byte b1) {
-        return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8));
     }
 }
