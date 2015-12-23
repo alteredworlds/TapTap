@@ -34,6 +34,7 @@ import com.alteredworlds.taptap.util.Primitives;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,28 +166,11 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date forDate = new Date();
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(forDate);
-                cal.set(Calendar.YEAR, 2015);
-                cal.set(Calendar.MONTH, 12);
-                cal.set(Calendar.DAY_OF_MONTH, 18);
-                forDate = cal.getTime();
-                Log.d(LOG_TAG, "onClick: Request Temperatures for " + forDate);
-                requestTemperaturesForDate(forDate);
+                GregorianCalendar cal = new GregorianCalendar();
+                cal.add(Calendar.DAY_OF_MONTH, -1);
+                requestTemperaturesForDate(cal.getTime());
             }
         });
-//
-//        button = (Button) findViewById(R.id.stopLogging);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.d(LOG_TAG, "onClick: Stop Logging");
-//                char buf[] = {'C'};
-//                sendCommand(buf);
-//            }
-//        });
-
     }
 
     @Override
@@ -316,6 +300,8 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                 data[0] = 'G';
                 long time = forDate.getTime();
                 int intTime = (int) (time / 1000L);
+
+                Log.d(LOG_TAG, "onClick: Request Temperatures for " + forDate + "  unixLong: " + time + "  unix-uint32: " + intTime);
                 Primitives.unsignedIntToBytes(data, 1, 4, intTime);
                 if (txCharc.setValue(data)) {
                     mService.writeCharacteristic(txCharc);
