@@ -296,6 +296,14 @@ public class BleTapTapService extends Service {
         }
     }
 
+    public void clearAllResultsForDevice(String address) {
+        int num = getContentResolver().delete(
+                TapTapDataContract.TemperatureRecordEntry.CONTENT_URI,
+                TapTapDataContract.TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS + " = '" + address + "'",
+                null);
+        Log.i(LOG_TAG, "Deleted " + num + " temperature records for device " + address);
+    }
+
     public boolean isScanning() {
         return null != mBleScanner;
     }

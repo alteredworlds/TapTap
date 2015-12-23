@@ -18,6 +18,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -169,6 +170,18 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                 GregorianCalendar cal = new GregorianCalendar();
                 cal.add(Calendar.DAY_OF_MONTH, -1);
                 requestTemperaturesForDate(cal.getTime());
+            }
+        });
+
+        button = (Button) findViewById(R.id.clearTemperatures);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!TextUtils.isEmpty(mDeviceAddress)) {
+                    mService.clearAllResultsForDevice(mDeviceAddress);
+                } else {
+                    Log.w(LOG_TAG, "onClick : clearTemperatures but no connected device");
+                }
             }
         });
     }

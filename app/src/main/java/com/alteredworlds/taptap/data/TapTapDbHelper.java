@@ -38,6 +38,11 @@ public class TapTapDbHelper extends SQLiteOpenHelper {
                 // Set up the COLUMN_DEVICE_ADDRESS as a foreign key to device table.
                 " FOREIGN KEY (" + TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS + ") REFERENCES " +
                 DeviceEntry.TABLE_NAME + " (" + DeviceEntry.COLUMN_ADDRESS + ")" +
+                // not really sure if this is necessary but don't want multiple
+                // repetitions of the same relationship
+                // e.g.: profile '1' linked with attribute '27'
+                " UNIQUE (" + TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS + ", "
+                + TemperatureRecordEntry.COLUMN_TIMESTAMP + ") ON CONFLICT IGNORE" +
                 ");";
 
         db.execSQL(SQL_CREATE_DEVICE_TABLE);
