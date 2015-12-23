@@ -77,7 +77,16 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Get Temps" />
+                android:text="Yesterday" />
+
+            <Button
+                android:id="@+id/catchUpToday"
+                style="?@android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Today" />
 
             <Button
                 android:id="@+id/clearTemperatures"
@@ -86,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Clear Temps" />
+                android:text="Clear" />
 
         </LinearLayout>
 

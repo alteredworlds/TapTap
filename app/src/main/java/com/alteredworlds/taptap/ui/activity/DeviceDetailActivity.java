@@ -173,6 +173,16 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             }
         });
 
+
+        button = (Button) findViewById(R.id.catchUpToday);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GregorianCalendar cal = new GregorianCalendar();
+                requestTemperaturesForDate(cal.getTime());
+            }
+        });
+
         button = (Button) findViewById(R.id.clearTemperatures);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
