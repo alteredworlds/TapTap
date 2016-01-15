@@ -19,8 +19,8 @@ import java.util.Date;
  * Created by twcgilbert on 14/12/2015.
  */
 public class TemperatureListAdapter extends CursorAdapter {
-    private ColumnIndeces mIndeces;
     private final DecimalFormat mDecimalFormat = new DecimalFormat("#.00");
+    private ColumnIndeces mIndeces;
 
     public TemperatureListAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
@@ -54,10 +54,8 @@ public class TemperatureListAdapter extends CursorAdapter {
             view.setVisibility(View.VISIBLE);
 
             int readResult = cursor.getInt(index);
-            double temperature = readResult * 0.004882814;
-            // convert from 10mv per degree C with 500mv offset
-            temperature = (temperature - 0.5) * 100;
-            view.setText(String.valueOf(readResult) + " / " + mDecimalFormat.format(temperature));
+            double temperature = readResult / 100.0;
+            view.setText(mDecimalFormat.format(temperature));
         }
     }
 
