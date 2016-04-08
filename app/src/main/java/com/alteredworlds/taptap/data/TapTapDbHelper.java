@@ -42,7 +42,7 @@ public class TapTapDbHelper extends SQLiteOpenHelper {
                 // repetitions of the same relationship
                 // e.g.: profile '1' linked with attribute '27'
                 " UNIQUE (" + TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS + ", "
-                + TemperatureRecordEntry.COLUMN_TIMESTAMP + ") ON CONFLICT IGNORE" +
+                + TemperatureRecordEntry.COLUMN_TIMESTAMP + ") ON CONFLICT REPLACE" +
                 ");";
 
         db.execSQL(SQL_CREATE_DEVICE_TABLE);
