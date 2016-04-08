@@ -2,7 +2,7 @@ package com.alteredworlds.taptap.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
+import java.util.Locale;
 
 /**
  * Created by twcgilbert on 14/12/2015.
@@ -14,8 +14,9 @@ public class DateHelper {
         if (null == date) {
             return "";
         } else {
-            final SimpleDateFormat sdf = new SimpleDateFormat(AW_UTC_DATE_TIME_FORMAT);
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            final SimpleDateFormat sdf = new SimpleDateFormat(
+                    AW_UTC_DATE_TIME_FORMAT,
+                    Locale.getDefault());
             return sdf.format(date);
         }
     }
