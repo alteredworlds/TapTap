@@ -167,7 +167,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 requestTemperaturesForDate(
-                        TapTapDataHelper.startOfYesterday()
+                        TapTapDataHelper.getStartOfYesterday()
                 );
             }
         });
@@ -178,7 +178,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 requestTemperaturesForDate(
-                        TapTapDataHelper.getMaxRecordedDateToday(DeviceDetailActivity.this, mDeviceAddress)
+                        TapTapDataHelper.getStartOfToday()
                 );
             }
         });

@@ -22,12 +22,7 @@ public class TapTapDataHelper {
         }
         if (null == retVal) {
             // OK, we don't have a valid datetime for today, so create one at start of day
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.set(Calendar.HOUR, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 1);
-            retVal = cal.getTime();
+            retVal = getStartOfToday();
         }
         return retVal;
     }
@@ -51,10 +46,18 @@ public class TapTapDataHelper {
         return retVal;
     }
 
-    public static Date startOfYesterday() {
+    public static Date getStartOfToday() {
         GregorianCalendar cal = new GregorianCalendar();
-        // set to yesterday
-        cal.add(Calendar.DAY_OF_MONTH, -1);
+        return getStartOfDay(cal);
+    }
+
+    public static Date getStartOfYesterday() {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.add(Calendar.DAY_OF_MONTH, -1);  // set to yesterday
+        return getStartOfDay(cal);
+    }
+
+    protected static Date getStartOfDay(GregorianCalendar cal) {
         // set to first millisecond of day
         cal.set(Calendar.HOUR, 0);
         cal.set(Calendar.MINUTE, 0);
