@@ -28,14 +28,13 @@ import android.widget.TextView;
 import com.alteredworlds.taptap.R;
 import com.alteredworlds.taptap.data.TapTapDataContract;
 import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
+import com.alteredworlds.taptap.data.helper.TapTapDataHelper;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
 import com.alteredworlds.taptap.ui.adapter.TemperatureListAdapter;
 import com.alteredworlds.taptap.util.Primitives;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,9 +166,9 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GregorianCalendar cal = new GregorianCalendar();
-                cal.add(Calendar.DAY_OF_MONTH, -1);
-                requestTemperaturesForDate(cal.getTime());
+                requestTemperaturesForDate(
+                        TapTapDataHelper.startOfYesterday()
+                );
             }
         });
 
@@ -178,8 +177,9 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GregorianCalendar cal = new GregorianCalendar();
-                requestTemperaturesForDate(cal.getTime());
+                requestTemperaturesForDate(
+                        TapTapDataHelper.getMaxRecordedDateToday(DeviceDetailActivity.this, mDeviceAddress)
+                );
             }
         });
 
