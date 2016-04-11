@@ -179,20 +179,48 @@ public class BleTapTapService extends Service {
         if (RX_CHAR_UUID.equals(characteristic.getUuid())) {
             // Log.d(TAG, String.format("Received TX: %d",characteristic.getValue() ));
             data = characteristic.getValue();
-            // retrieve temperature record information from byte[] buffer
-            ContentValues cv = TemperatureRecordConverter.fromByteArray(data);
-            if (cv.size() > 0) {
-                cv.put(TapTapDataContract.TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS,
-                        mBluetoothDeviceAddress);
-                // now add to our data store
-                getContentResolver().insert(
-                        TapTapDataContract.TemperatureRecordEntry.CONTENT_URI,
-                        cv);
+            // we *may* now receive TWO records per characteristic rather than ONE
+            for (byte[] dataRecord : getDataRecords(data)) {
+                // retrieve temperature record information from byte[] buffer
+                ContentValues cv = TemperatureRecordConverter.fromByteArray(dataRecord);
+                if (cv.size() > 0) {
+                    cv.put(TapTapDataContract.TemperatureRecordEntry.COLUMN_DEVICE_ADDRESS,
+                            mBluetoothDeviceAddress);
+                    // now add to our data store
+                    getContentResolver().insert(
+                            TapTapDataContract.TemperatureRecordEntry.CONTENT_URI,
+                            cv);
+                }
             }
-        } else {
-            data = null;
         }
-        broadcastUpdate(TapGattAttributes.ACTION_DATA_AVAILABLE, data);
+    }
+
+    // WANRING: this method is a serious short term HACK
+    // Uses magic numbers to cope with:
+    // ONE or TWO records of data for TWO or THREE sensors per record
+    // # sensors must be the same in each of the two included records
+    private byte[][] getDataRecords(byte[] data) {
+        byte[][] retVal;
+        if (null == data) {
+            // shouldn't happen, but guard against null data case
+            retVal = new byte[0][];
+        } else if (20 == data.length) {
+            // TWO records of TIMESTAMP + 3 x Sensor data
+            retVal = new byte[2][10];
+            System.arraycopy(data, 0, retVal[0], 0, 10);
+            System.arraycopy(data, 10, retVal[1], 0, 10);
+        } else if (16 == data.length) {
+            // TWO records of TIMESTAMP + 2 x Sensor data
+            retVal = new byte[2][8];
+            System.arraycopy(data, 0, retVal[0], 0, 8);
+            System.arraycopy(data, 8, retVal[1], 0, 8);
+        } else {
+            // all other cases
+            // EXPECT: ONE record of TIMESTAMP + 3|2 x Sensor data
+            retVal = new byte[1][];
+            retVal[0] = data;
+        }
+        return retVal;
     }
 
 

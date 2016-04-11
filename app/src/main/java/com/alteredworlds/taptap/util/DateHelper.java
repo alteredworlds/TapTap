@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by twcgilbert on 14/12/2015.
@@ -26,14 +27,14 @@ public class DateHelper {
     }
 
     public static Date getStartOfToday() {
-        // start of today in system default Locale, TimeZone
-        GregorianCalendar cal = new GregorianCalendar();
+        // start of today in UTC
+        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         return getStartOfDay(cal);
     }
 
     public static Date getStartOfYesterday() {
-        // start of yesterday in system default Locale, TimeZone
-        GregorianCalendar cal = new GregorianCalendar();
+        // start of yesterday in UTC
+        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         cal.add(Calendar.DAY_OF_MONTH, -1);  // set to yesterday
         return getStartOfDay(cal);
     }

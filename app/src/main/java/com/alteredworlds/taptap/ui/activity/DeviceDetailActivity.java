@@ -90,11 +90,6 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                 }
                 mStatusTextView.setText(sb.toString());
                 mControlsLayout.setVisibility(controlsVisible ? View.VISIBLE : View.GONE);
-            } else if (TapGattAttributes.ACTION_DATA_AVAILABLE.equals(action)) {
-                // notified that new data has ben received over serial connection
-//                byte[] data = intent.getByteArrayExtra(BleTapTapService.EXTRA_DATA);
-//                Log.d(LOG_TAG, "Received new data: " + data);
-//                TemperatureRecordConverter.fromByteArray(data);
             }
         }
     };
@@ -120,7 +115,6 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         intentFilter.addAction(TapGattAttributes.ACTION_GATT_CONNECTED);
         intentFilter.addAction(TapGattAttributes.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(TapGattAttributes.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(TapGattAttributes.ACTION_DATA_AVAILABLE);
 
         return intentFilter;
     }
