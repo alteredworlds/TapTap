@@ -28,10 +28,10 @@ import android.widget.TextView;
 import com.alteredworlds.taptap.R;
 import com.alteredworlds.taptap.data.TapTapDataContract;
 import com.alteredworlds.taptap.data.converter.BluetoothDeviceConverter;
-import com.alteredworlds.taptap.data.helper.TapTapDataHelper;
 import com.alteredworlds.taptap.service.BleTapTapService;
 import com.alteredworlds.taptap.service.TapGattAttributes;
 import com.alteredworlds.taptap.ui.adapter.TemperatureListAdapter;
+import com.alteredworlds.taptap.util.DateHelper;
 import com.alteredworlds.taptap.util.Primitives;
 
 import java.util.Date;
@@ -167,7 +167,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 requestTemperaturesForDate(
-                        TapTapDataHelper.getStartOfYesterday()
+                        DateHelper.getStartOfYesterday()
                 );
             }
         });
@@ -178,7 +178,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 requestTemperaturesForDate(
-                        TapTapDataHelper.getStartOfToday()
+                        DateHelper.getStartOfToday()
                 );
             }
         });

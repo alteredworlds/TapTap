@@ -5,10 +5,9 @@ import android.database.Cursor;
 import android.text.format.DateUtils;
 
 import com.alteredworlds.taptap.data.TapTapDataContract;
+import com.alteredworlds.taptap.util.DateHelper;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 /**
  * Created by twcgilbert on 08/04/2016.
@@ -22,7 +21,7 @@ public class TapTapDataHelper {
         }
         if (null == retVal) {
             // OK, we don't have a valid datetime for today, so create one at start of day
-            retVal = getStartOfToday();
+            retVal = DateHelper.getStartOfToday();
         }
         return retVal;
     }
@@ -44,25 +43,5 @@ public class TapTapDataHelper {
             cursor.close();
         }
         return retVal;
-    }
-
-    public static Date getStartOfToday() {
-        GregorianCalendar cal = new GregorianCalendar();
-        return getStartOfDay(cal);
-    }
-
-    public static Date getStartOfYesterday() {
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.add(Calendar.DAY_OF_MONTH, -1);  // set to yesterday
-        return getStartOfDay(cal);
-    }
-
-    protected static Date getStartOfDay(GregorianCalendar cal) {
-        // set to first millisecond of day
-        cal.set(Calendar.HOUR, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 1);
-        return cal.getTime();
     }
 }

@@ -41,7 +41,7 @@ public class TemperatureListAdapter extends CursorAdapter {
         long millis = cursor.getLong(mIndeces.colTIMESTAMP);
         Date nightmare = new Date(millis * 1000);
 
-        holder.timeTextView.setText(DateHelper.formattedDateUTC(nightmare));
+        holder.timeTextView.setText(DateHelper.formattedDateLocal(nightmare));
         setValue(cursor, mIndeces.colVALUE0, holder.value0TextView);
         setValue(cursor, mIndeces.colVALUE1, holder.value1TextView);
         setValue(cursor, mIndeces.colVALUE2, holder.value2TextView);
