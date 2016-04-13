@@ -25,6 +25,15 @@
         android:layout_gravity="center_horizontal"
         android:padding="10dp" />
 
+    <Button
+        android:id="@+id/setTime"
+        style="?@android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="@string/set_time" />
+
     <TextView
         android:id="@+id/statusTextView"
         style="@android:style/TextAppearance.Material.Subhead"

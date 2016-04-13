@@ -160,6 +160,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(LOG_TAG, "onClick: request yesterday's temperatures");
                 requestTemperaturesForDate(
                         DateHelper.getStartOfYesterday()
                 );
@@ -171,6 +172,7 @@ public class DeviceDetailActivity extends AppCompatActivity implements
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(LOG_TAG, "onClick: request today's temperatures");
                 requestTemperaturesForDate(
                         DateHelper.getStartOfToday()
                 );
@@ -186,6 +188,15 @@ public class DeviceDetailActivity extends AppCompatActivity implements
                 } else {
                     Log.w(LOG_TAG, "onClick : clearTemperatures but no connected device");
                 }
+            }
+        });
+
+        button = (Button) findViewById(R.id.setTime);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(LOG_TAG, "onClick: set device time to NOW!");
+                setClientDateTime(new Date());
             }
         });
     }
@@ -310,15 +321,25 @@ public class DeviceDetailActivity extends AppCompatActivity implements
     }
 
     protected void requestTemperaturesForDate(Date forDate) {
+        Log.d(LOG_TAG, "requestTemperaturesForDate(" + forDate + ")");
+        sendCommandWithDateTime((byte) 'G', forDate);
+    }
+
+    protected void setClientDateTime(Date toDate) {
+        Log.d(LOG_TAG, "setClientDateTime(" + toDate + ")");
+        sendCommandWithDateTime((byte) 'D', toDate);
+    }
+
+    protected void sendCommandWithDateTime(byte cmd, Date forDate) {
         if (null != mService) {
             BluetoothGattCharacteristic txCharc = mCharacteristics.get(BleTapTapService.TX_CHAR_UUID);
             if (null != txCharc) {
                 byte[] data = new byte[5];
-                data[0] = 'G';
+                data[0] = cmd;
                 long time = forDate.getTime();
                 int intTime = (int) (time / 1000L);
 
-                Log.d(LOG_TAG, "onClick: Request Temperatures for " + forDate + "  unixLong: " + time + "  unix-uint32: " + intTime);
+                Log.d(LOG_TAG, "sendCommandWithDateTime(" + cmd + ", " + forDate + " as unix-uint32: " + intTime + ")");
                 Primitives.unsignedIntToBytes(data, 1, 4, intTime);
                 if (txCharc.setValue(data)) {
                     mService.writeCharacteristic(txCharc);
