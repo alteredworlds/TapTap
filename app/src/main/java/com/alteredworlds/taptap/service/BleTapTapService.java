@@ -41,9 +41,16 @@ import java.util.UUID;
  * Created by twcgilbert on 05/12/2015.
  */
 public class BleTapTapService extends Service {
+    /*
+    // ReadBear Lab Custom UART Service
     public final static UUID TX_CHAR_UUID = UUID.fromString("713d0003-503e-4c75-ba94-3148f18d941e");
     public final static UUID RX_CHAR_UUID = UUID.fromString("713d0002-503e-4c75-ba94-3148f18d941e");
-    public final static UUID RX_SERVICE_UUID = UUID.fromString("713d0000-503e-4c75-ba94-3148f18d941e");
+    public final static UUID RX_SERVICE_UUID = UUID.fromString("713d0000-503e-4c75-ba94-3148f18d941e");*/
+
+    // Nordic UART Service
+    public final static UUID TX_CHAR_UUID = UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
+    public final static UUID RX_CHAR_UUID = UUID.fromString("6E400003-B5A3-F393-E0A9-E50E24DCCA9E");
+    public final static UUID RX_SERVICE_UUID = UUID.fromString("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
 
     public final static String EXTRA_DATA = "awUART.EXTRA_DATA";
 

@@ -45,19 +45,16 @@ public class TemperatureRecordConverter {
                 Log.e(LOG_TAG, "Invalid data packet with length: " + data.length);
             } else {
                 // read 32 bit unixtime
-                // NOTE: Java doesn't have unsigned int (32 bit)
-                int tmp = Primitives.unsignedBytesToInt(data[0], data[1], data[2], data[3]);
-                // so need to keep value in a (64 bit) long
-                long dateTime = tmp & 0xffffffffL;
+                // NOTE: Java doesn't have unsigned int (32 bit) so keep value in (64 bit) long
+                long dateTime = Primitives.uint32_tToLong(data[0], data[1], data[2], data[3]);
                 cv.put(TemperatureRecordEntry.COLUMN_TIMESTAMP, dateTime);
 
                 // OK, now to read one or more 16 bit temp values
-                short tmpShort;
                 int numTempValues = tempDataLen / 2;
                 for (int tempIdx = 0; tempIdx < numTempValues; tempIdx++) {
                     // read each temperature value
                     int offset = 4 + 2 * tempIdx;
-                    int reading = Primitives.unsignedBytesToInt(data[offset], data[offset + 1]);
+                    int reading = Primitives.int16_tToInt(data[offset], data[offset + 1]);
 
                     String columnName = TemperatureRecordEntry.getColumnNameForValue(tempIdx);
                     if (null != columnName) {
